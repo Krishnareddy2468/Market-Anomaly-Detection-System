@@ -21,11 +21,15 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 
-# Create async engine
+# Create async engine (PostgreSQL via asyncpg)
 engine: AsyncEngine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DATABASE_ECHO,
     future=True,
+    pool_size=settings.DATABASE_POOL_SIZE,
+    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+    pool_recycle=settings.DATABASE_POOL_RECYCLE,
+    pool_pre_ping=True,  # verify connections before use (handles RDS idle drops)
 )
 
 # Session factory
@@ -52,12 +56,15 @@ async def init_db() -> None:
     logger.info("Initializing database connection", url=settings.DATABASE_URL[:50])
     
     async with engine.begin() as conn:
-        # Import all models to ensure they're registered
-        from app.db.models import (
+        # Import all models to ensure they're registered with Base.metadata
+        from app.db.models import (  # noqa: F401
             TransactionModel,
+            FeatureSnapshotModel,
             AlertModel,
+            ModelScoreRecordModel,
             InvestigationModel,
             FeedbackModel,
+            MetricsSnapshotModel,
         )
         
         # Create tables (for development/MVP)

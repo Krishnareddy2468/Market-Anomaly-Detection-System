@@ -71,8 +71,8 @@ class AlertRepository:
         count_result = await self.session.execute(count_query)
         total = count_result.scalar_one()
         
-        # Apply pagination and ordering
-        query = query.order_by(AlertModel.created_at.desc())
+        # Apply pagination and ordering (by detection_time for analyst relevance)
+        query = query.order_by(AlertModel.detection_time.desc())
         query = query.offset(offset).limit(limit)
         
         result = await self.session.execute(query)
@@ -127,7 +127,7 @@ class AlertRepository:
         self,
         hours: int = 24,
     ) -> List[dict]:
-        """Get hourly alert counts for trend chart."""
+        """Get hourly alert counts for trend chart (based on detection_time)."""
         if not self.session:
             return []
         
@@ -135,13 +135,36 @@ class AlertRepository:
         
         query = (
             select(
-                func.date_trunc('hour', AlertModel.created_at).label('hour'),
+                func.date_trunc('hour', AlertModel.detection_time).label('hour'),
                 func.count(AlertModel.id).label('count'),
             )
-            .where(AlertModel.created_at >= start_time)
+            .where(AlertModel.detection_time >= start_time)
             .group_by('hour')
             .order_by('hour')
         )
         
         result = await self.session.execute(query)
         return [{"hour": row.hour, "count": row.count} for row in result.all()]
+
+    async def get_high_risk_alerts(
+        self,
+        min_score: float = 70.0,
+        limit: int = 20,
+    ) -> List[AlertModel]:
+        """Get recent high-risk alerts for analyst priority view."""
+        if not self.session:
+            return []
+
+        query = (
+            select(AlertModel)
+            .where(
+                and_(
+                    AlertModel.risk_score >= min_score,
+                    AlertModel.status.in_([AlertStatus.ACTIVE, AlertStatus.INVESTIGATING]),
+                )
+            )
+            .order_by(AlertModel.risk_score.desc(), AlertModel.detection_time.desc())
+            .limit(limit)
+        )
+        result = await self.session.execute(query)
+        return list(result.scalars().all())

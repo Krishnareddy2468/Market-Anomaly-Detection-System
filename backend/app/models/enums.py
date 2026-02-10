@@ -60,3 +60,39 @@ class TimeRange(str, Enum):
     DAYS_30 = "30d"
     DAYS_90 = "90d"
     ALL = "all"
+
+
+class FeatureCategory(str, Enum):
+    """Feature categories for Feature Snapshots."""
+    STATISTICAL = "STATISTICAL"
+    TEMPORAL = "TEMPORAL"
+    BEHAVIORAL = "BEHAVIORAL"
+    CONTEXTUAL = "CONTEXTUAL"
+    DEVICE = "DEVICE"
+    GEOGRAPHIC = "GEOGRAPHIC"
+
+
+class InvestigationAction(str, Enum):
+    """Investigation audit trail action types."""
+    CREATED = "CREATED"
+    STATUS_CHANGED = "STATUS_CHANGED"
+    NOTE_ADDED = "NOTE_ADDED"
+    DECISION_SUBMITTED = "DECISION_SUBMITTED"
+    REOPENED = "REOPENED"
+    ASSIGNED = "ASSIGNED"
+
+
+class MetricScope(str, Enum):
+    """Scope for aggregated metrics."""
+    GLOBAL = "GLOBAL"
+    MODEL = "MODEL"
+    SEVERITY = "SEVERITY"
+    ENTITY_TYPE = "ENTITY_TYPE"
+
+
+class MetricPeriod(str, Enum):
+    """Time bucket period for aggregated metrics."""
+    HOURLY = "HOURLY"
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"

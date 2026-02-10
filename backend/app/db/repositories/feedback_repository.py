@@ -67,7 +67,7 @@ class FeedbackRepository:
         
         if days:
             start_date = datetime.utcnow() - timedelta(days=days)
-            conditions.append(FeedbackModel.created_at >= start_date)
+            conditions.append(FeedbackModel.resolved_at >= start_date)
         
         if conditions:
             query = query.where(and_(*conditions))
@@ -77,8 +77,8 @@ class FeedbackRepository:
         count_result = await self.session.execute(count_query)
         total = count_result.scalar_one()
         
-        # Get data
-        query = query.order_by(FeedbackModel.created_at.desc())
+        # Get data — ordered by resolution time for analyst workflow
+        query = query.order_by(FeedbackModel.resolved_at.desc())
         query = query.offset(offset).limit(limit)
         
         result = await self.session.execute(query)
@@ -109,7 +109,7 @@ class FeedbackRepository:
                     )
                 ).label('false_positives'),
             )
-            .where(FeedbackModel.created_at >= start_date)
+            .where(FeedbackModel.resolved_at >= start_date)
         )
         
         result = await self.session.execute(query)
@@ -134,10 +134,31 @@ class FeedbackRepository:
         query = (
             select(FeedbackModel)
             .where(FeedbackModel.analyst_id == analyst_id)
-            .order_by(FeedbackModel.created_at.desc())
+            .order_by(FeedbackModel.resolved_at.desc())
             .offset(offset)
             .limit(limit)
         )
         
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_unprocessed_training_signals(
+        self,
+        limit: int = 100,
+    ) -> List[FeedbackModel]:
+        """
+        Get feedback records not yet used for model retraining.
+
+        Supports the ML training feedback loop.
+        """
+        if not self.session:
+            return []
+
+        query = (
+            select(FeedbackModel)
+            .where(FeedbackModel.used_for_training == False)  # noqa: E712
+            .order_by(FeedbackModel.resolved_at.asc())
+            .limit(limit)
+        )
         result = await self.session.execute(query)
         return list(result.scalars().all())

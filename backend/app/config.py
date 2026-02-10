@@ -32,9 +32,12 @@ class Settings(BaseSettings):
     PORT: int = 8000
     WORKERS: int = 1
     
-    # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///./fraud_detection.db"
+    # Database (PostgreSQL — AWS RDS)
+    DATABASE_URL: str = "postgresql+asyncpg://krishnareddy@localhost:5432/fraud_detection"
     DATABASE_ECHO: bool = False
+    DATABASE_POOL_SIZE: int = 10
+    DATABASE_MAX_OVERFLOW: int = 20
+    DATABASE_POOL_RECYCLE: int = 300  # seconds — keep below RDS idle timeout
     
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
