@@ -8,7 +8,7 @@ Orchestrates real-time detection workflow:
 - Persist alerts + model scores when threshold is crossed
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 import uuid
 
@@ -45,6 +45,8 @@ class DetectionService:
 
     async def evaluate(self, payload: DetectionRequest) -> DetectionResultData:
         """Evaluate one transaction and persist artifacts."""
+        normalized_timestamp = self._normalize_timestamp(payload.timestamp)
+
         historical_rows = await self.transaction_repo.get_historical_for_entity(
             payload.entity_id,
             days=30,
@@ -65,7 +67,7 @@ class DetectionService:
         transaction = await self.transaction_repo.create(
             transaction_id=payload.transaction_id,
             amount=payload.amount,
-            timestamp=payload.timestamp,
+            timestamp=normalized_timestamp,
             source_account=payload.source_account,
             destination_account=payload.destination_account,
             entity_id=payload.entity_id,
@@ -82,7 +84,7 @@ class DetectionService:
         engine_input = TransactionInput(
             transaction_id=payload.transaction_id,
             amount=payload.amount,
-            timestamp=payload.timestamp,
+            timestamp=normalized_timestamp,
             source_account=payload.source_account,
             destination_account=payload.destination_account,
             entity_id=payload.entity_id,
@@ -153,3 +155,9 @@ class DetectionService:
             elif isinstance(value, (int, float)):
                 result[key] = float(value)
         return result
+
+    def _normalize_timestamp(self, value: datetime) -> datetime:
+        """Convert incoming timestamps to naive UTC for DB/storage consistency."""
+        if value.tzinfo is None:
+            return value
+        return value.astimezone(timezone.utc).replace(tzinfo=None)
