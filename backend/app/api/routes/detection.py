@@ -4,7 +4,7 @@ Detection API Routes
 Endpoints for real-time transaction scoring and alert generation.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.api.dependencies import get_detection_service
 from app.models.schemas import DetectionRequest, DetectionResponse
@@ -19,8 +19,5 @@ async def evaluate_transaction(
     service: DetectionService = Depends(get_detection_service),
 ):
     """Evaluate one transaction and persist detection artifacts."""
-    try:
-        result = await service.evaluate(payload)
-        return DetectionResponse(data=result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
+    result = await service.evaluate(payload)
+    return DetectionResponse(data=result)

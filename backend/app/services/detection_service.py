@@ -12,7 +12,10 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 import uuid
 
+from sqlalchemy.exc import IntegrityError
+
 from app.config import settings
+from app.core.errors import ConflictError
 from app.core.logging import get_logger
 from app.db.repositories.alert_repository import AlertRepository
 from app.db.repositories.feature_snapshot_repository import FeatureSnapshotRepository
@@ -47,6 +50,13 @@ class DetectionService:
         """Evaluate one transaction and persist artifacts."""
         normalized_timestamp = self._normalize_timestamp(payload.timestamp)
 
+        existing = await self.transaction_repo.get_by_id(payload.transaction_id)
+        if existing:
+            raise ConflictError(
+                message=f"Transaction {payload.transaction_id} already exists",
+                details={"transaction_id": payload.transaction_id},
+            )
+
         historical_rows = await self.transaction_repo.get_historical_for_entity(
             payload.entity_id,
             days=30,
@@ -64,20 +74,34 @@ class DetectionService:
             for row in historical_rows
         ]
 
-        transaction = await self.transaction_repo.create(
-            transaction_id=payload.transaction_id,
-            amount=payload.amount,
-            timestamp=normalized_timestamp,
-            source_account=payload.source_account,
-            destination_account=payload.destination_account,
-            entity_id=payload.entity_id,
-            entity_type=payload.entity_type,
-            currency=payload.currency,
-            channel=payload.channel,
-            ip_address=payload.ip_address,
-            device_fingerprint=payload.device_fingerprint,
-            geo_country=payload.geo_country,
-        )
+        try:
+            transaction = await self.transaction_repo.create(
+                transaction_id=payload.transaction_id,
+                amount=payload.amount,
+                timestamp=normalized_timestamp,
+                source_account=payload.source_account,
+                destination_account=payload.destination_account,
+                entity_id=payload.entity_id,
+                entity_type=payload.entity_type,
+                currency=payload.currency,
+                channel=payload.channel,
+                ip_address=payload.ip_address,
+                device_fingerprint=payload.device_fingerprint,
+                geo_country=payload.geo_country,
+            )
+        except IntegrityError as exc:
+            message = str(exc).lower()
+            is_unique_violation = (
+                "duplicate key value violates unique constraint" in message
+                or "unique" in message
+                or "23505" in message
+            )
+            if is_unique_violation:
+                raise ConflictError(
+                    message=f"Transaction {payload.transaction_id} already exists",
+                    details={"transaction_id": payload.transaction_id},
+                ) from exc
+            raise
         if not transaction:
             raise RuntimeError("Failed to persist transaction")
 
