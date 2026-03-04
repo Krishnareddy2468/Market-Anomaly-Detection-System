@@ -91,7 +91,7 @@ class TransactionModel(Base):
 
     # --- Monetary details ---
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    currency: Mapped[str] = mapped_column(String(3), default="USD")
+    currency: Mapped[str] = mapped_column(String(3), default="INR")
 
     # --- Time & channel ---
     timestamp: Mapped[datetime] = mapped_column(

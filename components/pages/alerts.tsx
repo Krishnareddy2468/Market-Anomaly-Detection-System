@@ -26,6 +26,7 @@ export function AlertsPage() {
   })
 
   const handleRowClick = (alert: any) => {
+    localStorage.setItem('selected_alert_id', alert.alert_id)
     console.log('[v0] Alert selected:', alert.alert_id)
   }
 

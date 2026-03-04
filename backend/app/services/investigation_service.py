@@ -4,10 +4,7 @@ Investigation Service
 Business logic for fraud investigations and decision submission.
 """
 
-from datetime import datetime, timedelta
 from typing import List, Optional
-import random
-import uuid
 
 from app.models.schemas import (
     Investigation,
@@ -18,13 +15,17 @@ from app.models.schemas import (
 )
 from app.models.enums import (
     AlertStatus,
+    FeedbackDecision,
     InvestigationDecision,
-    EntityType,
+    InvestigationAction,
     RiskLevel,
 )
 from app.db.repositories.alert_repository import AlertRepository
+from app.db.repositories.feature_snapshot_repository import FeatureSnapshotRepository
 from app.db.repositories.transaction_repository import TransactionRepository
 from app.db.repositories.feedback_repository import FeedbackRepository
+from app.db.repositories.investigation_repository import InvestigationRepository
+from app.db.repositories.model_score_repository import ModelScoreRepository
 from app.core.errors import NotFoundError, BusinessRuleViolation
 from app.core.logging import get_logger
 
@@ -40,16 +41,29 @@ class InvestigationService:
         InvestigationDecision.LEGITIMATE: AlertStatus.FALSE_POSITIVE,
         InvestigationDecision.REVIEW: AlertStatus.INVESTIGATING,
     }
+
+    VALID_TRANSITIONS = {
+        AlertStatus.ACTIVE: [AlertStatus.INVESTIGATING, AlertStatus.RESOLVED],
+        AlertStatus.INVESTIGATING: [AlertStatus.RESOLVED, AlertStatus.FALSE_POSITIVE, AlertStatus.ACTIVE],
+        AlertStatus.RESOLVED: [AlertStatus.ACTIVE],
+        AlertStatus.FALSE_POSITIVE: [AlertStatus.ACTIVE],
+    }
     
     def __init__(
         self,
         alert_repo: AlertRepository,
         transaction_repo: TransactionRepository,
         feedback_repo: FeedbackRepository,
+        feature_repo: FeatureSnapshotRepository,
+        model_score_repo: ModelScoreRepository,
+        investigation_repo: InvestigationRepository,
     ):
         self.alert_repo = alert_repo
         self.transaction_repo = transaction_repo
         self.feedback_repo = feedback_repo
+        self.feature_repo = feature_repo
+        self.model_score_repo = model_score_repo
+        self.investigation_repo = investigation_repo
     
     async def get_investigation(self, alert_id: str) -> Investigation:
         """
@@ -63,67 +77,79 @@ class InvestigationService:
         - Investigation notes
         """
         logger.info("Fetching investigation", alert_id=alert_id)
-        
-        if not alert_id.startswith("ALT-"):
+
+        alert = await self.alert_repo.get_by_id(alert_id)
+        if not alert:
             raise NotFoundError(f"Alert {alert_id} not found")
-        
-        # Build investigation context (mock data for MVP)
+
+        transaction = None
+        feature_deviations: List[FeatureDeviation] = []
+
+        if alert.transaction_id:
+            txn = await self.transaction_repo.get_by_db_id(alert.transaction_id)
+            if txn:
+                transaction = Transaction(
+                    transaction_id=txn.transaction_id,
+                    amount=txn.amount,
+                    currency=txn.currency,
+                    timestamp=txn.timestamp,
+                    source_account=txn.source_account,
+                    destination_account=txn.destination_account,
+                    channel=txn.channel,
+                    ip_address=txn.ip_address,
+                    device_fingerprint=txn.device_fingerprint,
+                )
+
+                features = await self.feature_repo.get_by_transaction(
+                    txn.id,
+                    alert.detection_run_id,
+                )
+                features.sort(
+                    key=lambda row: abs(float(row.feature_value)),
+                    reverse=True,
+                )
+                feature_deviations = [
+                    FeatureDeviation(
+                        feature=row.feature_name,
+                        deviation=f"{row.feature_value:.2f}",
+                        risk_level=self._risk_level_from_value(row.feature_value),
+                        value=row.feature_value,
+                        baseline=None,
+                    )
+                    for row in features[:8]
+                ]
+
+        score_rows = await self.model_score_repo.get_scores_for_alert(alert.id)
+        historical_behavior = [
+            {
+                "date": row.scored_at.isoformat(),
+                "score": row.normalized_score,
+                "model": row.model_name,
+            }
+            for row in score_rows
+        ]
+
+        history_rows = await self.investigation_repo.get_history(alert.id)
+        notes = [
+            InvestigationNote(
+                note_id=row.id,
+                content=row.notes,
+                analyst_id=row.analyst_id or "system",
+                timestamp=row.created_at,
+            )
+            for row in history_rows
+            if row.action == InvestigationAction.NOTE_ADDED and row.notes
+        ]
+
         return Investigation(
             alert_id=alert_id,
-            entity=f"User #{random.randint(10000, 99999)}",
-            status=AlertStatus.INVESTIGATING,
-            risk_score=94.5,
-            transaction=Transaction(
-                transaction_id=f"TXN-{uuid.uuid4().hex[:8].upper()}",
-                amount=45230.00,
-                currency="USD",
-                timestamp=datetime.now() - timedelta(minutes=30),
-                source_account="Account #42521",
-                destination_account="Account #8839",
-                channel="API",
-                ip_address="192.168.1.105",
-                device_fingerprint="fp_a1b2c3d4e5",
-            ),
-            feature_deviations=[
-                FeatureDeviation(
-                    feature="Transaction Amount",
-                    deviation="+340%",
-                    risk_level=RiskLevel.VERY_HIGH,
-                    value=45230,
-                    baseline=10300,
-                ),
-                FeatureDeviation(
-                    feature="Time of Day",
-                    deviation="Unusual Pattern",
-                    risk_level=RiskLevel.HIGH,
-                ),
-                FeatureDeviation(
-                    feature="Frequency",
-                    deviation="+8x Normal Rate",
-                    risk_level=RiskLevel.HIGH,
-                    value=8,
-                    baseline=1,
-                ),
-                FeatureDeviation(
-                    feature="Geographic Location",
-                    deviation="New Country",
-                    risk_level=RiskLevel.MEDIUM,
-                ),
-                FeatureDeviation(
-                    feature="Device Fingerprint",
-                    deviation="New Device",
-                    risk_level=RiskLevel.MEDIUM,
-                ),
-            ],
-            historical_behavior=[
-                {"date": "5 days ago", "score": 15},
-                {"date": "4 days ago", "score": 18},
-                {"date": "3 days ago", "score": 22},
-                {"date": "2 days ago", "score": 25},
-                {"date": "Yesterday", "score": 35},
-                {"date": "Today", "score": 94},
-            ],
-            notes=[],
+            entity=alert.entity,
+            status=alert.status,
+            risk_score=alert.risk_score,
+            transaction=transaction,
+            feature_deviations=feature_deviations,
+            historical_behavior=historical_behavior,
+            notes=notes,
         )
     
     async def submit_decision(
@@ -148,20 +174,57 @@ class InvestigationService:
             decision=decision,
             analyst_id=analyst_id,
         )
-        
-        # Validate alert exists
-        if not alert_id.startswith("ALT-"):
+
+        alert = await self.alert_repo.get_by_id(alert_id)
+        if not alert:
             raise NotFoundError(f"Alert {alert_id} not found")
-        
-        # Get new status from decision
+
         new_status = self.DECISION_STATUS_MAP[decision]
-        
-        # Update alert status
-        # await self.alert_repo.update_status(alert_id, new_status)
-        
-        # Record feedback for ML loop
-        # await self.feedback_repo.create(...)
-        
+
+        if new_status != alert.status and new_status not in self.VALID_TRANSITIONS.get(alert.status, []):
+            raise BusinessRuleViolation(
+                f"Invalid status transition: {alert.status} → {new_status}"
+            )
+
+        updated = await self.alert_repo.update_status(alert_id, new_status)
+        if not updated:
+            raise NotFoundError(f"Alert {alert_id} not found")
+
+        await self.investigation_repo.create_entry(
+            alert_id=alert.id,
+            action=InvestigationAction.STATUS_CHANGED,
+            old_status=alert.status.value,
+            new_status=new_status.value,
+            analyst_id=analyst_id,
+            analyst_name=analyst_id,
+        )
+        await self.investigation_repo.create_entry(
+            alert_id=alert.id,
+            action=InvestigationAction.DECISION_SUBMITTED,
+            old_status=alert.status.value,
+            new_status=new_status.value,
+            decision=decision.value,
+            notes=notes,
+            analyst_id=analyst_id,
+            analyst_name=analyst_id,
+        )
+
+        if decision in (InvestigationDecision.FRAUD, InvestigationDecision.LEGITIMATE):
+            existing = await self.feedback_repo.get_by_alert(alert.id)
+            if not existing:
+                feedback_decision = (
+                    FeedbackDecision.FRAUD
+                    if decision == InvestigationDecision.FRAUD
+                    else FeedbackDecision.FALSE_POSITIVE
+                )
+                await self.feedback_repo.create_feedback(
+                    alert_id=alert.id,
+                    decision=feedback_decision,
+                    notes=notes,
+                    analyst_id=analyst_id,
+                    analyst_name=analyst_id,
+                )
+
         logger.info(
             "Decision recorded",
             alert_id=alert_id,
@@ -186,19 +249,19 @@ class InvestigationService:
         Notes are append-only for audit purposes.
         """
         logger.info("Adding investigation note", alert_id=alert_id)
-        
-        if not alert_id.startswith("ALT-"):
+
+        alert = await self.alert_repo.get_by_id(alert_id)
+        if not alert:
             raise NotFoundError(f"Alert {alert_id} not found")
-        
-        # Create note (would save to DB)
-        note_entry = InvestigationNote(
-            note_id=str(uuid.uuid4()),
-            content=note,
+
+        note_row = await self.investigation_repo.create_entry(
+            alert_id=alert.id,
+            action=InvestigationAction.NOTE_ADDED,
+            notes=note,
             analyst_id=analyst_id or "system",
-            timestamp=datetime.now(),
+            analyst_name=analyst_id or "system",
         )
-        
-        logger.info("Note added", alert_id=alert_id, note_id=note_entry.note_id)
+        logger.info("Note added", alert_id=alert_id, note_id=note_row.id if note_row else None)
     
     async def get_history(self, alert_id: str) -> List[dict]:
         """
@@ -207,28 +270,34 @@ class InvestigationService:
         Returns timeline of all actions taken on this alert.
         """
         logger.info("Fetching investigation history", alert_id=alert_id)
-        
-        if not alert_id.startswith("ALT-"):
+
+        alert = await self.alert_repo.get_by_id(alert_id)
+        if not alert:
             raise NotFoundError(f"Alert {alert_id} not found")
-        
-        # Mock history
+
+        rows = await self.investigation_repo.get_history(alert.id)
         return [
             {
-                "timestamp": (datetime.now() - timedelta(hours=2)).isoformat(),
-                "action": "ALERT_CREATED",
-                "details": "Alert generated by detection engine",
-            },
-            {
-                "timestamp": (datetime.now() - timedelta(hours=1)).isoformat(),
-                "action": "STATUS_CHANGED",
-                "from_status": "ACTIVE",
-                "to_status": "INVESTIGATING",
-                "analyst": "john.smith",
-            },
-            {
-                "timestamp": (datetime.now() - timedelta(minutes=30)).isoformat(),
-                "action": "NOTE_ADDED",
-                "analyst": "john.smith",
-                "content": "Contacting customer for verification",
-            },
+                "timestamp": row.created_at.isoformat(),
+                "action": row.action.value,
+                "from_status": row.old_status,
+                "to_status": row.new_status,
+                "decision": row.decision,
+                "analyst": row.analyst_id,
+                "content": row.notes,
+            }
+            for row in rows
         ]
+
+    def _risk_level_from_value(self, value: float) -> RiskLevel:
+        """Map feature magnitude to display risk level."""
+        absolute = abs(float(value))
+        if absolute >= 80:
+            return RiskLevel.VERY_HIGH
+        if absolute >= 50:
+            return RiskLevel.HIGH
+        if absolute >= 20:
+            return RiskLevel.MEDIUM
+        if absolute >= 5:
+            return RiskLevel.LOW
+        return RiskLevel.MINIMAL

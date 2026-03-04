@@ -1,8 +1,8 @@
 import { AlertSeverity } from '../types'
 import { formatTimeRelative, formatTimeAbsolute, formatTimeTime } from './format-time'
 
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (amount: number, currency: string = 'INR'): string => {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
@@ -34,7 +34,7 @@ export const formatPercent = (value: number, decimals: number = 1): string => {
 }
 
 export const formatNumber = (value: number): string => {
-  return new Intl.NumberFormat('en-US').format(value)
+  return new Intl.NumberFormat('en-IN').format(value)
 }
 
 export const formatRiskScore = (score: number): string => {

@@ -74,7 +74,7 @@ class FeatureEngineer:
         return {
             "transaction_id": getattr(transaction, 'transaction_id', ''),
             "amount": getattr(transaction, 'amount', 0),
-            "currency": "USD",
+            "currency": getattr(transaction, 'currency', 'INR'),
             "source_account": getattr(transaction, 'source_account', ''),
             "destination_account": getattr(transaction, 'destination_account', ''),
             "channel": getattr(transaction, 'channel', 'unknown'),

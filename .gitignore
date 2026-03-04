@@ -69,6 +69,7 @@ htmlcov/
 # SQLite (dev artifacts — not used, but just in case)
 *.db
 *.sqlite3
+backend/models/
 
 # =============================================
 # Environment & Secrets (NEVER commit)

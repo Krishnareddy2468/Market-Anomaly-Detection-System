@@ -6,6 +6,7 @@ Data access layer for alert operations.
 
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
+import uuid
 
 from sqlalchemy import select, update, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +30,15 @@ class AlertRepository:
             return None
             
         query = select(AlertModel).where(AlertModel.alert_id == alert_id)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
+    async def get_by_db_id(self, id: str) -> Optional[AlertModel]:
+        """Get alert by internal DB primary key."""
+        if not self.session:
+            return None
+
+        query = select(AlertModel).where(AlertModel.id == id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
     
@@ -97,6 +107,24 @@ class AlertRepository:
         
         result = await self.session.execute(query)
         return result.rowcount > 0
+
+    async def get_count_in_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> int:
+        """Get alert count in a detection time window."""
+        if not self.session:
+            return 0
+
+        query = select(func.count(AlertModel.id)).where(
+            and_(
+                AlertModel.detection_time >= start_time,
+                AlertModel.detection_time < end_time,
+            )
+        )
+        result = await self.session.execute(query)
+        return result.scalar_one()
     
     async def get_count_by_severity(self) -> dict:
         """Get alert counts grouped by severity."""
@@ -122,6 +150,41 @@ class AlertRepository:
         
         result = await self.session.execute(query)
         return result.scalar_one()
+
+    async def create(
+        self,
+        entity: str,
+        entity_type,
+        risk_score: float,
+        severity,
+        status,
+        description: Optional[str],
+        transaction_id: Optional[str],
+        detection_run_id: Optional[str],
+        detection_time: datetime,
+    ) -> Optional[AlertModel]:
+        """Create a new alert row."""
+        if not self.session:
+            return None
+
+        alert = AlertModel(
+            id=str(uuid.uuid4()),
+            alert_id=f"ALT-{uuid.uuid4().hex[:8].upper()}",
+            entity=entity,
+            entity_type=entity_type,
+            risk_score=risk_score,
+            severity=severity,
+            status=status,
+            description=description,
+            transaction_id=transaction_id,
+            detection_run_id=detection_run_id,
+            detection_time=detection_time,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow(),
+        )
+        self.session.add(alert)
+        await self.session.flush()
+        return alert
     
     async def get_trend_data(
         self,
@@ -168,3 +231,20 @@ class AlertRepository:
         )
         result = await self.session.execute(query)
         return list(result.scalars().all())
+
+    async def get_high_risk_count(
+        self,
+        min_score: float = 70.0,
+    ) -> int:
+        """Get count of high risk active/investigating alerts."""
+        if not self.session:
+            return 0
+
+        query = select(func.count(AlertModel.id)).where(
+            and_(
+                AlertModel.risk_score >= min_score,
+                AlertModel.status.in_([AlertStatus.ACTIVE, AlertStatus.INVESTIGATING]),
+            )
+        )
+        result = await self.session.execute(query)
+        return result.scalar_one()

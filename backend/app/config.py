@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     RISK_THRESHOLD_HIGH: float = 80.0
     RISK_THRESHOLD_MEDIUM: float = 50.0
     RISK_THRESHOLD_LOW: float = 20.0
+    ML_MODEL_PATH: str = "models/fraud_detector.joblib"
+    ML_MODEL_VERSION: str = "1.0.0"
     
     # Rate Limiting
     RATE_LIMIT_REQUESTS: int = 100

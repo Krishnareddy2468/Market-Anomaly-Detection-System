@@ -6,6 +6,8 @@ Supports reproducibility and explainability queries.
 """
 
 from typing import List, Optional, Dict
+import uuid
+from datetime import datetime
 
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -130,3 +132,47 @@ class FeatureSnapshotRepository:
         )
         result = await self.session.execute(query)
         return {row[0].value: row[1] for row in result.all()}
+
+    async def create_many(
+        self,
+        transaction_id: str,
+        detection_run_id: str,
+        features: Dict[str, float],
+        model_version: str = "1.0.0",
+    ) -> int:
+        """Persist numeric feature values for a detection run."""
+        if not self.session:
+            return 0
+
+        rows: List[FeatureSnapshotModel] = []
+        for feature_name, feature_value in features.items():
+            rows.append(
+                FeatureSnapshotModel(
+                    id=str(uuid.uuid4()),
+                    transaction_id=transaction_id,
+                    detection_run_id=detection_run_id,
+                    feature_name=feature_name,
+                    feature_value=float(feature_value),
+                    feature_category=self._infer_category(feature_name),
+                    model_version=model_version,
+                    computed_at=datetime.utcnow(),
+                )
+            )
+        self.session.add_all(rows)
+        await self.session.flush()
+        return len(rows)
+
+    def _infer_category(self, feature_name: str) -> FeatureCategory:
+        """Infer feature category from naming conventions."""
+        name = feature_name.lower()
+        if "zscore" in name or "pct" in name or "amount" in name:
+            return FeatureCategory.STATISTICAL
+        if "hour" in name or "day" in name or "weekend" in name or "time" in name:
+            return FeatureCategory.TEMPORAL
+        if "geo" in name or "location" in name:
+            return FeatureCategory.GEOGRAPHIC
+        if "device" in name:
+            return FeatureCategory.DEVICE
+        if "frequency" in name or "destination" in name or "channel" in name or "history" in name:
+            return FeatureCategory.BEHAVIORAL
+        return FeatureCategory.CONTEXTUAL

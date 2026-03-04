@@ -1,34 +1,88 @@
-import { ApiError, ApiResponse } from '../types'
+import { ApiError } from '../types'
 
 export class ApiClient {
+  private static readonly API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, '') || ''
+
+  private static buildCandidateUrls(endpoint: string): string[] {
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      return [endpoint]
+    }
+
+    const urls: string[] = []
+
+    if (this.API_BASE_URL) {
+      if (endpoint.startsWith('/')) {
+        urls.push(`${this.API_BASE_URL}${endpoint}`)
+      } else {
+        urls.push(`${this.API_BASE_URL}/${endpoint}`)
+      }
+      // Fallback to same-origin Next API routes if backend is unavailable.
+      if (endpoint.startsWith('/api/')) {
+        urls.push(endpoint)
+      }
+    } else if (endpoint.startsWith('/api/')) {
+      // No backend URL configured; use Next API routes.
+      urls.push(endpoint)
+    } else {
+      urls.push(endpoint.startsWith('/') ? endpoint : `/${endpoint}`)
+    }
+
+    // de-duplicate while preserving order
+    return [...new Set(urls)]
+  }
+
   static async request<T>(
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // Use relative URLs for client-side requests to work properly in all environments
-    try {
-      const response = await fetch(endpoint, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
-      })
+    const candidateUrls = this.buildCandidateUrls(endpoint)
+    let lastError: unknown
 
-      if (!response.ok) {
-        const errorData = (await response.json()) as ApiError
-        const error = new Error(errorData.message || 'API request failed') as any
-        error.code = errorData.error_code
-        error.status = response.status
-        throw error
+    for (const url of candidateUrls) {
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
+          ...options,
+        })
+
+        if (!response.ok) {
+          const errorPayload = (await response.json().catch(() => null)) as
+            | (ApiError & { detail?: string; error?: string })
+            | null
+          const message =
+            errorPayload?.message ||
+            errorPayload?.detail ||
+            errorPayload?.error ||
+            `API request failed (${response.status})`
+          const error = new Error(message) as any
+          error.code = errorPayload?.error_code
+          error.status = response.status
+          error.endpoint = endpoint
+          error.url = url
+          lastError = error
+          continue
+        }
+
+        const data = await response.json()
+        return data as T
+      } catch (error) {
+        lastError = error
+        try {
+          console.error(`[API Error] ${url}:`, error)
+        } catch {
+          // ignore logging failures
+        }
       }
-
-      const data = await response.json()
-      return data as T
-    } catch (error) {
-      console.error(`[API Error] ${endpoint}:`, error)
-      throw error
     }
+
+    if (lastError instanceof Error) {
+      throw lastError
+    }
+    throw new Error('Unable to reach API. Check backend and API route configuration.')
   }
 
   static get<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -46,10 +100,10 @@ export class ApiClient {
     })
   }
 
-  static put<T>(endpoint: string, body?: unknown, options?: RequestInit): Promise<T> {
+  static patch<T>(endpoint: string, body?: unknown, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
-      method: 'PUT',
+      method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
     })
   }

@@ -181,6 +181,51 @@ python -m app.main
 | GET | `/api/feedback` | Get resolution history |
 | GET | `/api/feedback/summary` | Get feedback statistics |
 
+### Detection
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/detection/evaluate` | Score one transaction and generate alert if needed |
+
+## 🤖 ML Workflow
+
+1. **Train model artifact**
+```bash
+cd backend
+source venv/bin/activate
+python -m app.detection.train_model
+```
+
+2. **Run backend**
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+3. **Score a transaction**
+```bash
+curl -X POST http://localhost:8000/api/detection/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction_id": "TXN-RT-0001",
+    "amount": 45230,
+    "timestamp": "2026-03-02T12:00:00Z",
+    "source_account": "ACC-1001",
+    "destination_account": "ACC-9099",
+    "entity_id": "ENT-42521",
+    "entity_type": "USER",
+    "currency": "INR",
+    "channel": "API",
+    "ip_address": "10.0.0.2",
+    "device_fingerprint": "device-x1",
+    "geo_country": "US"
+  }'
+```
+
+This call persists:
+- transaction row,
+- feature snapshots,
+- model scores,
+- alert row (only when threshold is crossed).
+
 ## 🔧 Configuration
 
 All configuration is managed through environment variables:

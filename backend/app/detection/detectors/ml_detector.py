@@ -7,8 +7,12 @@ Uses trained models for anomaly detection.
 
 from typing import Dict, Any, List
 import random
+from pathlib import Path
+
+from joblib import load
 
 from app.detection.detectors.base import BaseDetector, DetectionResult
+from app.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -28,6 +32,9 @@ class MLDetector(BaseDetector):
     def __init__(self):
         super().__init__()
         self.model = None
+        self.feature_names: List[str] = []
+        self.threshold: float = 0.65
+        self.model_version: str = settings.ML_MODEL_VERSION
         self.model_loaded = False
         self._load_model()
     
@@ -37,7 +44,7 @@ class MLDetector(BaseDetector):
     
     @property
     def version(self) -> str:
-        return "3.0.0"  # Model version
+        return self.model_version
     
     def _load_model(self) -> None:
         """
@@ -49,12 +56,36 @@ class MLDetector(BaseDetector):
         - Initialize preprocessors
         """
         try:
-            # For MVP, we'll use mock predictions
-            # In production:
-            # import joblib
-            # self.model = joblib.load('models/fraud_detector_v3.pkl')
-            self.model_loaded = True
-            logger.info("ML model loaded", version=self.version)
+            model_path = Path(settings.ML_MODEL_PATH)
+            if not model_path.is_absolute():
+                project_root = Path(__file__).resolve().parents[3]
+                model_path = project_root / model_path
+
+            if not model_path.exists():
+                self.model_loaded = False
+                logger.warning(
+                    "ML model file not found; using heuristic fallback",
+                    path=str(model_path),
+                )
+                return
+
+            artifact = load(model_path)
+            if isinstance(artifact, dict):
+                self.model = artifact.get("model")
+                self.feature_names = artifact.get("feature_names", [])
+                self.threshold = float(artifact.get("threshold", self.threshold))
+                self.model_version = str(artifact.get("version", self.model_version))
+            else:
+                self.model = artifact
+
+            self.model_loaded = self.model is not None
+            logger.info(
+                "ML model loaded",
+                version=self.version,
+                feature_count=len(self.feature_names),
+                threshold=self.threshold,
+                path=str(model_path),
+            )
         except Exception as e:
             logger.error("Failed to load ML model", error=str(e))
             self.model_loaded = False
@@ -72,7 +103,7 @@ class MLDetector(BaseDetector):
         # Extract ML features
         ml_features = self._prepare_features(features)
         
-        # Make prediction (mock for MVP)
+        # Make prediction (model-backed when available)
         score, confidence = self._predict(ml_features)
         
         # Generate explanations based on feature importance
@@ -125,42 +156,56 @@ class MLDetector(BaseDetector):
         
         In production, this would call model.predict() and model.predict_proba()
         """
-        # For MVP: Generate realistic-looking score based on feature values
-        # This simulates what a trained model would output
-        
+        if self.model_loaded and self.model is not None:
+            vector = self._vectorize(features)
+            # IsolationForest: lower decision_function -> more anomalous.
+            raw_score = float(self.model.decision_function([vector])[0])
+            # Map to anomaly score in [0, 1], then to [0, 100]
+            anomaly_score = 1.0 / (1.0 + pow(2.718281828, 6 * raw_score))
+            final_score = self.clamp_score(anomaly_score * 100)
+            confidence = min(0.95, max(0.55, abs(anomaly_score - 0.5) * 2))
+            return final_score, confidence
+
+        # Heuristic fallback
         base_score = 20.0
-        
-        # High-risk signals
         if features["amount_normalized"] > 0.8:
             base_score += 30
         elif features["amount_normalized"] > 0.5:
             base_score += 15
-        
         if features["velocity"] > 0.7:
             base_score += 20
-        
         if features["geo_risk"] > 0.7:
             base_score += 15
-        
         if features["device_risk"] > 0.5:
             base_score += 10
-        
         if features["destination_risk"] > 0.5:
             base_score += 10
-        
-        # Add some randomness to simulate model prediction variance
+
         noise = random.uniform(-5, 5)
         final_score = self.clamp_score(base_score + noise)
-        
-        # Confidence is high when signals are clear (very high or very low score)
         if final_score > 80 or final_score < 30:
             confidence = 0.9
         elif final_score > 60 or final_score < 40:
             confidence = 0.75
         else:
             confidence = 0.6
-        
         return final_score, confidence
+
+    def _vectorize(self, features: Dict[str, float]) -> List[float]:
+        """Convert feature dict to model input vector."""
+        if self.feature_names:
+            return [float(features.get(name, 0.0)) for name in self.feature_names]
+        # Default order if artifact lacks explicit feature names
+        return [
+            features.get("amount_normalized", 0.0),
+            features.get("time_risk", 0.0),
+            features.get("velocity", 0.0),
+            features.get("geo_risk", 0.0),
+            features.get("device_risk", 0.0),
+            features.get("destination_risk", 0.0),
+            features.get("frequency_deviation", 0.0),
+            features.get("account_age_risk", 0.0),
+        ]
     
     def _generate_explanations(
         self,

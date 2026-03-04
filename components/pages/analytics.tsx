@@ -1,36 +1,40 @@
 'use client'
 
+import { useConfusionMatrix, useDetectionRate, useModelPerformance, usePerformanceMetrics, useAnalyticsTrends } from '@/lib/hooks/useAnalytics'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-const modelPerformanceMetrics = [
-  { label: 'Precision', value: 94.2, unit: '%' },
-  { label: 'Recall', value: 87.5, unit: '%' },
-  { label: 'F1 Score', value: 90.7, unit: '%' },
-  { label: 'Alert Volume', value: '2.4K', unit: 'daily' },
-]
-
-const alertVolumeData = [
-  { day: 'Mon', alerts: 280, frauds: 24 },
-  { day: 'Tue', alerts: 320, frauds: 28 },
-  { day: 'Wed', alerts: 290, frauds: 19 },
-  { day: 'Thu', alerts: 350, frauds: 32 },
-  { day: 'Fri', alerts: 410, frauds: 38 },
-  { day: 'Sat', alerts: 380, frauds: 35 },
-  { day: 'Sun', alerts: 320, frauds: 26 },
-]
-
-const modelAccuracyData = [
-  { model: 'v1.0', accuracy: 82.5 },
-  { model: 'v1.5', accuracy: 85.3 },
-  { model: 'v2.0', accuracy: 89.1 },
-  { model: 'v2.5', accuracy: 92.8 },
-  { model: 'v3.0', accuracy: 94.2 },
-]
+import { PageContainer } from '@/components/layout/page-container'
 
 export function AnalyticsPage() {
+  const { data: metrics } = usePerformanceMetrics()
+  const { data: volume } = useAnalyticsTrends()
+  const { data: modelPerf } = useModelPerformance()
+  const { data: confusion } = useConfusionMatrix()
+  const { data: detection } = useDetectionRate()
+
+  const modelPerformanceMetrics = [
+    { label: 'Precision', value: metrics?.precision ?? 0, unit: '%' },
+    { label: 'Recall', value: metrics?.recall ?? 0, unit: '%' },
+    { label: 'F1 Score', value: metrics?.f1_score ?? 0, unit: '%' },
+    { label: 'Alert Volume', value: metrics?.alert_volume_daily ?? 0, unit: 'daily' },
+  ]
+
+  const alertVolumeData =
+    volume?.labels.map((label, index) => ({
+      day: label,
+      alerts: volume.alerts[index] ?? 0,
+      frauds: volume.frauds[index] ?? 0,
+    })) || []
+
+  const modelAccuracyData =
+    modelPerf?.versions.map((version, index) => ({
+      model: version,
+      accuracy: modelPerf.accuracy[index] ?? 0,
+    })) || []
+
   return (
-    <div className="p-6 space-y-6 ml-20 md:ml-64">
+    <PageContainer>
+      <div className="space-y-6">
       {/* Model Performance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {modelPerformanceMetrics.map((metric, idx) => (
@@ -40,7 +44,7 @@ export function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-bold text-primary">{metric.value}</span>
+                <span className="text-3xl font-bold text-primary">{typeof metric.value === 'number' ? metric.value.toFixed(1) : metric.value}</span>
                 <span className="text-sm text-muted-foreground">{metric.unit}</span>
               </div>
             </CardContent>
@@ -108,7 +112,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-3xl font-bold text-primary">215</p>
+              <p className="text-3xl font-bold text-primary">{confusion?.true_positives ?? 0}</p>
               <p className="text-sm text-muted-foreground">Correctly identified frauds</p>
             </div>
           </CardContent>
@@ -120,7 +124,7 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-3xl font-bold text-orange-600">23</p>
+              <p className="text-3xl font-bold text-orange-600">{confusion?.false_positives ?? 0}</p>
               <p className="text-sm text-muted-foreground">Legitimate flagged as fraud</p>
             </div>
           </CardContent>
@@ -132,12 +136,13 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-3xl font-bold text-green-600">90.3%</p>
+              <p className="text-3xl font-bold text-green-600">{(detection?.average ?? 0).toFixed(2)}%</p>
               <p className="text-sm text-muted-foreground">Fraud cases caught</p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   )
 }

@@ -6,8 +6,6 @@ Business logic for feedback history and analyst decision tracking.
 
 from datetime import datetime, timedelta
 from typing import Optional, List
-import random
-import uuid
 
 from app.models.schemas import (
     Feedback,
@@ -19,6 +17,7 @@ from app.models.schemas import (
 from app.models.enums import FeedbackDecision
 from app.db.repositories.feedback_repository import FeedbackRepository
 from app.db.repositories.alert_repository import AlertRepository
+from app.core.errors import NotFoundError
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -42,36 +41,54 @@ class FeedbackService:
         Shows resolved alerts with decisions and analyst notes.
         """
         logger.info("Fetching feedback history", filters=filters.model_dump())
-        
-        # Generate mock data
-        all_feedback = self._generate_mock_feedback()
-        
-        # Apply filters
-        filtered = all_feedback
-        
-        if filters.decision:
-            filtered = [f for f in filtered if f.decision == filters.decision]
-        
-        if filters.analyst:
-            filtered = [f for f in filtered if filters.analyst.lower() in f.analyst.lower()]
-        
-        # Sort by resolved_at descending
-        filtered.sort(key=lambda x: x.resolved_at, reverse=True)
-        
-        # Paginate
-        total = len(filtered)
-        start = (filters.page - 1) * filters.limit
-        end = start + filters.limit
-        page_feedback = filtered[start:end]
-        
-        total_pages = (total + filters.limit - 1) // filters.limit
-        
-        # Calculate summary
-        fraud_count = sum(1 for f in all_feedback if f.decision == FeedbackDecision.FRAUD)
-        fp_count = sum(1 for f in all_feedback if f.decision == FeedbackDecision.FALSE_POSITIVE)
-        
+
+        days = self._range_to_days(filters.range)
+        offset = (filters.page - 1) * filters.limit
+        rows, total = await self.feedback_repo.get_list(
+            decision=filters.decision,
+            analyst=filters.analyst,
+            days=days,
+            offset=offset,
+            limit=filters.limit,
+        )
+
+        feedback_items: List[Feedback] = []
+        for row in rows:
+            alert = await self.alert_repo.get_by_db_id(row.alert_id)
+            feedback_items.append(
+                Feedback(
+                    feedback_id=row.feedback_id,
+                    alert_id=alert.alert_id if alert else row.alert_id,
+                    entity=alert.entity if alert else "Unknown",
+                    decision=row.decision,
+                    notes=row.notes,
+                    resolved_at=row.resolved_at,
+                    analyst=row.analyst_name or row.analyst_id or "system",
+                )
+            )
+
+        total_pages = (total + filters.limit - 1) // filters.limit if total else 0
+
+        if days:
+            now = datetime.utcnow()
+            summary_counts = await self.feedback_repo.get_counts_in_range(
+                now - timedelta(days=days),
+                now,
+            )
+        else:
+            summary_counts = await self.feedback_repo.get_summary_stats(days=36500)
+
+        total_resolutions = summary_counts.get("total", 0)
+        confirmed_frauds = summary_counts.get("frauds", 0)
+        false_positives = summary_counts.get("false_positives", 0)
+        resolution_rate = (
+            (confirmed_frauds / total_resolutions) * 100
+            if total_resolutions
+            else 0.0
+        )
+
         return FeedbackResult(
-            feedback=page_feedback,
+            feedback=feedback_items,
             pagination=PaginationInfo(
                 page=filters.page,
                 total_pages=total_pages,
@@ -80,36 +97,51 @@ class FeedbackService:
                 has_previous=filters.page > 1,
             ),
             summary=FeedbackSummary(
-                total_resolutions=len(all_feedback),
-                confirmed_frauds=fraud_count,
-                false_positives=fp_count,
-                resolution_rate=95.2,
+                total_resolutions=total_resolutions,
+                confirmed_frauds=confirmed_frauds,
+                false_positives=false_positives,
+                resolution_rate=round(resolution_rate, 2),
             ),
         )
     
     async def get_summary(self, range: str = "7d") -> FeedbackSummary:
         """Get summary statistics for feedback."""
         logger.info("Fetching feedback summary", range=range)
-        
+
+        days = self._range_to_days(range) or 36500
+        now = datetime.utcnow()
+        counts = await self.feedback_repo.get_counts_in_range(
+            now - timedelta(days=days),
+            now,
+        )
+        total = counts.get("total", 0)
+        frauds = counts.get("frauds", 0)
+        fps = counts.get("false_positives", 0)
+
         return FeedbackSummary(
-            total_resolutions=238,
-            confirmed_frauds=215,
-            false_positives=23,
-            resolution_rate=95.2,
+            total_resolutions=total,
+            confirmed_frauds=frauds,
+            false_positives=fps,
+            resolution_rate=round((frauds / total) * 100, 2) if total else 0.0,
         )
     
     async def get_feedback_detail(self, feedback_id: str) -> Feedback:
         """Get detailed feedback record."""
         logger.info("Fetching feedback detail", feedback_id=feedback_id)
-        
+
+        row = await self.feedback_repo.get_by_id(feedback_id)
+        if not row:
+            raise NotFoundError(f"Feedback {feedback_id} not found")
+        alert = await self.alert_repo.get_by_db_id(row.alert_id)
+
         return Feedback(
-            feedback_id=feedback_id,
-            alert_id=f"ALT-{random.randint(1, 100):03d}",
-            entity=f"User #{random.randint(10000, 99999)}",
-            decision=random.choice([FeedbackDecision.FRAUD, FeedbackDecision.FALSE_POSITIVE]),
-            notes="Investigation completed. Confirmed with customer.",
-            resolved_at=datetime.now() - timedelta(hours=random.randint(1, 48)),
-            analyst="John Smith",
+            feedback_id=row.feedback_id,
+            alert_id=alert.alert_id if alert else row.alert_id,
+            entity=alert.entity if alert else "Unknown",
+            decision=row.decision,
+            notes=row.notes,
+            resolved_at=row.resolved_at,
+            analyst=row.analyst_name or row.analyst_id or "system",
         )
     
     async def get_by_analyst(
@@ -120,50 +152,36 @@ class FeedbackService:
     ) -> List[Feedback]:
         """Get feedback history for a specific analyst."""
         logger.info("Fetching analyst feedback", analyst_id=analyst_id, page=page)
-        
-        # Mock data
-        return [
-            Feedback(
-                feedback_id=str(uuid.uuid4()),
-                alert_id=f"ALT-{random.randint(1, 100):03d}",
-                entity=f"User #{random.randint(10000, 99999)}",
-                decision=random.choice([FeedbackDecision.FRAUD, FeedbackDecision.FALSE_POSITIVE]),
-                notes="Investigation completed.",
-                resolved_at=datetime.now() - timedelta(hours=random.randint(1, 168)),
-                analyst=analyst_id,
+
+        offset = (page - 1) * limit
+        rows = await self.feedback_repo.get_by_analyst(
+            analyst_id=analyst_id,
+            offset=offset,
+            limit=limit,
+        )
+
+        items: List[Feedback] = []
+        for row in rows:
+            alert = await self.alert_repo.get_by_db_id(row.alert_id)
+            items.append(
+                Feedback(
+                    feedback_id=row.feedback_id,
+                    alert_id=alert.alert_id if alert else row.alert_id,
+                    entity=alert.entity if alert else "Unknown",
+                    decision=row.decision,
+                    notes=row.notes,
+                    resolved_at=row.resolved_at,
+                    analyst=row.analyst_name or row.analyst_id or analyst_id,
+                )
             )
-            for _ in range(min(limit, 10))
-        ]
-    
-    def _generate_mock_feedback(self) -> List[Feedback]:
-        """Generate mock feedback data."""
-        analysts = ["John Smith", "Sarah Johnson", "Michael Chen", "Emma Davis", "Robert Wilson"]
-        
-        feedback_list = []
-        for i in range(25):
-            is_fraud = random.random() > 0.3  # 70% fraud rate
-            
-            notes_fraud = [
-                "Unusual location, confirmed with customer",
-                "Multiple red flags, device fingerprint mismatch",
-                "Matched against known fraud patterns",
-                "Account takeover attempt confirmed",
-            ]
-            notes_fp = [
-                "Customer travel, known pattern",
-                "Legitimate high-value transaction for business",
-                "API integration test, whitelisted",
-                "Bulk purchase by authorized distributor",
-            ]
-            
-            feedback_list.append(Feedback(
-                feedback_id=f"FBK-{str(i + 1).zfill(3)}",
-                alert_id=f"ALT-{str(random.randint(1, 100)).zfill(3)}",
-                entity=f"User #{random.randint(10000, 99999)}",
-                decision=FeedbackDecision.FRAUD if is_fraud else FeedbackDecision.FALSE_POSITIVE,
-                notes=random.choice(notes_fraud if is_fraud else notes_fp),
-                resolved_at=datetime.now() - timedelta(hours=random.randint(1, 168)),
-                analyst=random.choice(analysts),
-            ))
-        
-        return feedback_list
+        return items
+
+    def _range_to_days(self, range_value: str) -> Optional[int]:
+        """Map API range token to day count."""
+        mapping = {
+            "7d": 7,
+            "30d": 30,
+            "90d": 90,
+            "all": None,
+        }
+        return mapping.get(range_value, 30)

@@ -6,8 +6,9 @@ Data access layer for feedback/resolution operations.
 
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
+import uuid
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import FeedbackModel
@@ -40,6 +41,35 @@ class FeedbackRepository:
         query = select(FeedbackModel).where(FeedbackModel.alert_id == alert_id)
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def create_feedback(
+        self,
+        alert_id: str,
+        decision: FeedbackDecision,
+        notes: Optional[str] = None,
+        analyst_id: Optional[str] = None,
+        analyst_name: Optional[str] = None,
+        confidence: Optional[float] = None,
+    ) -> Optional[FeedbackModel]:
+        """Create immutable feedback row for a resolved alert."""
+        if not self.session:
+            return None
+
+        record = FeedbackModel(
+            feedback_id=f"FBK-{uuid.uuid4().hex[:8].upper()}",
+            alert_id=alert_id,
+            decision=decision,
+            confidence=confidence,
+            notes=notes,
+            analyst_id=analyst_id,
+            analyst_name=analyst_name,
+            used_for_training=False,
+            resolved_at=datetime.utcnow(),
+            created_at=datetime.utcnow(),
+        )
+        self.session.add(record)
+        await self.session.flush()
+        return record
     
     async def get_list(
         self,
@@ -97,13 +127,13 @@ class FeedbackRepository:
             select(
                 func.count(FeedbackModel.id).label('total'),
                 func.sum(
-                    func.case(
+                    case(
                         (FeedbackModel.decision == FeedbackDecision.FRAUD, 1),
                         else_=0
                     )
                 ).label('frauds'),
                 func.sum(
-                    func.case(
+                    case(
                         (FeedbackModel.decision == FeedbackDecision.FALSE_POSITIVE, 1),
                         else_=0
                     )
@@ -115,6 +145,46 @@ class FeedbackRepository:
         result = await self.session.execute(query)
         row = result.one()
         
+        return {
+            "total": row.total or 0,
+            "frauds": row.frauds or 0,
+            "false_positives": row.false_positives or 0,
+        }
+
+    async def get_counts_in_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> dict:
+        """Get feedback totals and class counts in a fixed time window."""
+        if not self.session:
+            return {"total": 0, "frauds": 0, "false_positives": 0}
+
+        query = (
+            select(
+                func.count(FeedbackModel.id).label("total"),
+                func.sum(
+                    case(
+                        (FeedbackModel.decision == FeedbackDecision.FRAUD, 1),
+                        else_=0,
+                    )
+                ).label("frauds"),
+                func.sum(
+                    case(
+                        (FeedbackModel.decision == FeedbackDecision.FALSE_POSITIVE, 1),
+                        else_=0,
+                    )
+                ).label("false_positives"),
+            )
+            .where(
+                and_(
+                    FeedbackModel.resolved_at >= start_time,
+                    FeedbackModel.resolved_at < end_time,
+                )
+            )
+        )
+        result = await self.session.execute(query)
+        row = result.one()
         return {
             "total": row.total or 0,
             "frauds": row.frauds or 0,

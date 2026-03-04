@@ -26,7 +26,34 @@ export function useFeedbackHistory(page: number = 1, limit: number = 20) {
 export function useAnalyticsTrends() {
   return useQuery({
     queryKey: [ANALYTICS_KEY, 'trends'],
-    queryFn: () => AnalyticsService.getAnalyticsTrends(),
+    queryFn: () => AnalyticsService.getAlertVolume('7d', 'day'),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  })
+}
+
+export function useModelPerformance() {
+  return useQuery({
+    queryKey: [ANALYTICS_KEY, 'model-performance'],
+    queryFn: () => AnalyticsService.getModelPerformance('7d'),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  })
+}
+
+export function useConfusionMatrix() {
+  return useQuery({
+    queryKey: [ANALYTICS_KEY, 'confusion-matrix'],
+    queryFn: () => AnalyticsService.getConfusionMatrix(),
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  })
+}
+
+export function useDetectionRate() {
+  return useQuery({
+    queryKey: [ANALYTICS_KEY, 'detection-rate'],
+    queryFn: () => AnalyticsService.getDetectionRate('7d'),
     staleTime: 5 * 60 * 1000,
     retry: 2,
   })

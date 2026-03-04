@@ -110,7 +110,7 @@ class Transaction(BaseSchema):
     """Transaction details."""
     transaction_id: str
     amount: float
-    currency: str = "USD"
+    currency: str = "INR"
     timestamp: datetime
     source_account: str
     destination_account: str
@@ -279,6 +279,43 @@ class ModelPerformanceResponse(BaseSchema):
 class AlertVolumeResponse(BaseSchema):
     """API response for alert volume."""
     data: AlertVolume
+
+
+# =============================================================================
+# Detection Schemas
+# =============================================================================
+
+class DetectionRequest(BaseSchema):
+    """Input payload for real-time detection evaluation."""
+    transaction_id: str
+    amount: float
+    timestamp: datetime
+    source_account: str
+    destination_account: str
+    entity_id: str
+    entity_type: EntityType
+    currency: str = "INR"
+    channel: Optional[str] = None
+    ip_address: Optional[str] = None
+    device_fingerprint: Optional[str] = None
+    geo_country: Optional[str] = None
+
+
+class DetectionResultData(BaseSchema):
+    """Detection output payload."""
+    transaction_id: str
+    risk_score: float
+    severity: AlertSeverity
+    should_alert: bool
+    alert_id: Optional[str] = None
+    detector_scores: dict
+    explanations: List[str]
+    processing_time_ms: float
+
+
+class DetectionResponse(BaseSchema):
+    """API response for detection evaluation."""
+    data: DetectionResultData
 
 
 # =============================================================================

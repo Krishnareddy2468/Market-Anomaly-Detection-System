@@ -6,7 +6,6 @@ Business logic for dashboard metrics and visualizations.
 
 from datetime import datetime, timedelta
 from typing import List
-import random
 
 from app.models.schemas import (
     DashboardMetrics,
@@ -15,6 +14,8 @@ from app.models.schemas import (
     SeverityDistribution,
 )
 from app.db.repositories.alert_repository import AlertRepository
+from app.db.repositories.feedback_repository import FeedbackRepository
+from app.db.repositories.transaction_repository import TransactionRepository
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -23,8 +24,15 @@ logger = get_logger(__name__)
 class DashboardService:
     """Service for dashboard-related business logic."""
     
-    def __init__(self, alert_repo: AlertRepository):
+    def __init__(
+        self,
+        alert_repo: AlertRepository,
+        transaction_repo: TransactionRepository,
+        feedback_repo: FeedbackRepository,
+    ):
         self.alert_repo = alert_repo
+        self.transaction_repo = transaction_repo
+        self.feedback_repo = feedback_repo
     
     async def get_metrics(self) -> DashboardMetrics:
         """
@@ -38,18 +46,52 @@ class DashboardService:
         - Trend percentages vs previous period
         """
         logger.info("Fetching dashboard metrics")
-        
-        # In production, these would come from the database
-        # For MVP, using mock data
+
+        now = datetime.utcnow()
+        current_24h_start = now - timedelta(hours=24)
+        previous_24h_start = now - timedelta(hours=48)
+        current_7d_start = now - timedelta(days=7)
+        previous_7d_start = now - timedelta(days=14)
+
+        total_transactions = await self.transaction_repo.get_total_count()
+        active_alerts = await self.alert_repo.get_active_count()
+        high_risk_alerts = await self.alert_repo.get_high_risk_count(min_score=70.0)
+
+        feedback_totals = await self.feedback_repo.get_summary_stats(days=36500)
+        fp_total = feedback_totals.get("false_positives", 0)
+        resolution_total = feedback_totals.get("total", 0)
+        false_positive_rate = (
+            (fp_total / resolution_total) * 100 if resolution_total else 0.0
+        )
+
+        current_alerts = await self.alert_repo.get_count_in_range(current_24h_start, now)
+        previous_alerts = await self.alert_repo.get_count_in_range(previous_24h_start, current_24h_start)
+
+        current_txn = await self.transaction_repo.get_count_in_range(current_24h_start, now)
+        previous_txn = await self.transaction_repo.get_count_in_range(previous_24h_start, current_24h_start)
+
+        current_feedback = await self.feedback_repo.get_counts_in_range(current_7d_start, now)
+        previous_feedback = await self.feedback_repo.get_counts_in_range(previous_7d_start, current_7d_start)
+        current_fp_rate = (
+            (current_feedback["false_positives"] / current_feedback["total"]) * 100
+            if current_feedback["total"]
+            else 0.0
+        )
+        previous_fp_rate = (
+            (previous_feedback["false_positives"] / previous_feedback["total"]) * 100
+            if previous_feedback["total"]
+            else 0.0
+        )
+
         return DashboardMetrics(
-            total_transactions=2_456_789,
-            active_alerts=142,
-            high_risk_alerts=28,
-            false_positive_rate=2.3,
+            total_transactions=total_transactions,
+            active_alerts=active_alerts,
+            high_risk_alerts=high_risk_alerts,
+            false_positive_rate=round(false_positive_rate, 2),
             trends=MetricTrends(
-                alerts_change_pct=8.2,
-                false_positive_change_pct=-0.5,
-                transactions_change_pct=12.5,
+                alerts_change_pct=self._pct_change(current_alerts, previous_alerts),
+                false_positive_change_pct=self._pct_change(current_fp_rate, previous_fp_rate),
+                transactions_change_pct=self._pct_change(current_txn, previous_txn),
             ),
         )
     
@@ -60,39 +102,20 @@ class DashboardService:
         Returns hourly/daily alert counts based on range.
         """
         logger.info("Fetching alerts trend", range=range)
-        
+
         if range == "24h":
-            # Hourly data
-            timestamps = [f"{h:02d}:00" for h in range(0, 24, 2)]
-            values = [
-                random.randint(20, 40),  # Early morning low
-                random.randint(25, 45),
-                random.randint(30, 50),
-                random.randint(40, 60),  # Morning increase
-                random.randint(50, 70),
-                random.randint(60, 85),  # Peak hours
-                random.randint(70, 95),
-                random.randint(75, 90),
-                random.randint(80, 100), # Afternoon peak
-                random.randint(70, 85),
-                random.randint(55, 70),  # Evening decline
-                random.randint(35, 50),  # Night
-            ]
+            raw = await self.alert_repo.get_trend_data(hours=24)
+            timestamps = [row["hour"].strftime("%H:%M") for row in raw]
+            values = [row["count"] for row in raw]
         elif range == "7d":
-            timestamps = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-            values = [
-                random.randint(200, 300),
-                random.randint(250, 350),
-                random.randint(220, 320),
-                random.randint(280, 380),
-                random.randint(350, 450),  # Friday peak
-                random.randint(300, 400),
-                random.randint(250, 350),
-            ]
+            raw = await self.alert_repo.get_trend_data(hours=24 * 7)
+            timestamps = [row["hour"].strftime("%a %H:%M") for row in raw]
+            values = [row["count"] for row in raw]
         else:  # 30d
-            timestamps = [f"Day {i}" for i in range(1, 31)]
-            values = [random.randint(180, 400) for _ in range(30)]
-        
+            raw = await self.alert_repo.get_trend_data(hours=24 * 30)
+            timestamps = [row["hour"].strftime("%m-%d %H:%M") for row in raw]
+            values = [row["count"] for row in raw]
+
         return AlertsTrend(timestamps=timestamps, values=values)
     
     async def get_severity_distribution(self) -> List[SeverityDistribution]:
@@ -102,11 +125,37 @@ class DashboardService:
         For donut/pie chart visualization.
         """
         logger.info("Fetching severity distribution")
-        
-        # Mock distribution
+
+        raw_counts = await self.alert_repo.get_count_by_severity()
+        counts = {
+            (key.value if hasattr(key, "value") else str(key)): value
+            for key, value in raw_counts.items()
+        }
         return [
-            SeverityDistribution(name="Critical", value=15, color="hsl(0, 84%, 50%)"),
-            SeverityDistribution(name="High", value=35, color="hsl(0, 84%, 60%)"),
-            SeverityDistribution(name="Medium", value=45, color="hsl(54, 92%, 50%)"),
-            SeverityDistribution(name="Low", value=25, color="hsl(120, 73%, 55%)"),
+            SeverityDistribution(
+                name="Critical",
+                value=counts.get("CRITICAL", 0),
+                color="hsl(0, 84%, 50%)",
+            ),
+            SeverityDistribution(
+                name="High",
+                value=counts.get("HIGH", 0),
+                color="hsl(0, 84%, 60%)",
+            ),
+            SeverityDistribution(
+                name="Medium",
+                value=counts.get("MEDIUM", 0),
+                color="hsl(54, 92%, 50%)",
+            ),
+            SeverityDistribution(
+                name="Low",
+                value=counts.get("LOW", 0),
+                color="hsl(120, 73%, 55%)",
+            ),
         ]
+
+    def _pct_change(self, current: float, previous: float) -> float:
+        """Calculate percentage delta with zero-safe fallback."""
+        if previous == 0:
+            return 100.0 if current > 0 else 0.0
+        return round(((current - previous) / previous) * 100, 2)

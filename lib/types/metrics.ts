@@ -6,6 +6,7 @@ export interface DashboardMetrics {
   trends: {
     alerts_change_pct: number
     false_positive_change_pct: number
+    transactions_change_pct?: number
   }
 }
 
@@ -24,6 +25,31 @@ export interface AnalyticsMetrics {
   recall: number
   f1_score: number
   alert_volume_daily: number
+}
+
+export interface AlertVolume {
+  labels: string[]
+  alerts: number[]
+  frauds: number[]
+}
+
+export interface ModelPerformance {
+  versions: string[]
+  accuracy: number[]
+  timestamps: string[]
+}
+
+export interface ConfusionMatrix {
+  true_positives: number
+  false_positives: number
+  true_negatives: number
+  false_negatives: number
+}
+
+export interface DetectionRate {
+  labels: string[]
+  rates: number[]
+  average: number
 }
 
 export interface FeedbackItem {

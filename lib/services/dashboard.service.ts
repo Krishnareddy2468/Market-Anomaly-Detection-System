@@ -1,6 +1,12 @@
 import { AlertsTrend, DashboardMetrics } from '../types'
 import { ApiClient } from './api-client'
 
+interface SeverityDistribution {
+  name: string
+  value: number
+  color: string
+}
+
 export class DashboardService {
   static async getMetrics(): Promise<DashboardMetrics> {
     try {
@@ -22,9 +28,9 @@ export class DashboardService {
     }
   }
 
-  static async getSeverityDistribution() {
+  static async getSeverityDistribution(): Promise<SeverityDistribution[]> {
     try {
-      const response = await ApiClient.get<{ data: any }>('/api/dashboard/severity-distribution')
+      const response = await ApiClient.get<{ data: SeverityDistribution[] }>('/api/dashboard/severity-distribution')
       return response.data
     } catch (error) {
       console.error('[v0] Failed to fetch severity distribution:', error)

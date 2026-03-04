@@ -1,4 +1,4 @@
-import { Alert, AlertDetail, AlertFilters, AlertsResponse, InvestigationDecision, InvestigationResponse } from '../types'
+import { Alert, AlertDetail, AlertFilters, AlertsResponse, Investigation, InvestigationDecision, InvestigationResponse } from '../types'
 import { ApiClient } from './api-client'
 
 export class AlertsService {
@@ -23,7 +23,8 @@ export class AlertsService {
   }
 
   static async getAlertDetail(alert_id: string): Promise<AlertDetail> {
-    return ApiClient.get<AlertDetail>(`/api/alerts/${alert_id}`)
+    const response = await ApiClient.get<{ data: AlertDetail }>(`/api/alerts/${alert_id}`)
+    return response.data
   }
 
   static async submitDecision(
@@ -33,8 +34,21 @@ export class AlertsService {
     return ApiClient.post<InvestigationResponse>(`/api/investigations/${alert_id}/decision`, decision)
   }
 
+  static async getInvestigation(alert_id: string): Promise<Investigation> {
+    const response = await ApiClient.get<{ data: Investigation }>(`/api/investigations/${alert_id}`)
+    return response.data
+  }
+
+  static async addInvestigationNote(
+    alert_id: string,
+    content: string,
+    analyst_id: string = 'system',
+  ): Promise<void> {
+    await ApiClient.post(`/api/investigations/${alert_id}/notes`, { content, analyst_id })
+  }
+
   static async updateAlertStatus(alert_id: string, status: string): Promise<void> {
-    await ApiClient.put(`/api/alerts/${alert_id}`, { status })
+    await ApiClient.patch(`/api/alerts/${alert_id}/status?status=${encodeURIComponent(status)}`)
   }
 
   static async searchAlerts(query: string): Promise<Alert[]> {

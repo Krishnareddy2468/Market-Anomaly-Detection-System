@@ -7,6 +7,7 @@ Supports versioned score storage and model comparison queries.
 
 from datetime import datetime
 from typing import List, Optional, Dict
+import uuid
 
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -123,3 +124,40 @@ class ModelScoreRepository:
             "max_score": round(float(row.max_score or 0), 2),
             "avg_confidence": round(float(row.avg_confidence or 0), 2),
         }
+
+    async def create_many(
+        self,
+        alert_id: str,
+        detection_run_id: str,
+        detector_scores: Dict[str, float],
+        model_version: str = "1.0.0",
+    ) -> int:
+        """Persist per-detector score records for a detection run."""
+        if not self.session:
+            return 0
+
+        weights = {
+            "statistical": 0.25,
+            "behavioral": 0.35,
+            "ml": 0.40,
+        }
+        rows: List[ModelScoreRecordModel] = []
+        for model_name, score in detector_scores.items():
+            rows.append(
+                ModelScoreRecordModel(
+                    id=str(uuid.uuid4()),
+                    alert_id=alert_id,
+                    detection_run_id=detection_run_id,
+                    model_name=model_name,
+                    model_version=model_version,
+                    raw_score=float(score),
+                    normalized_score=float(score),
+                    confidence=1.0,
+                    weight=weights.get(model_name, 0.33),
+                    explanations=None,
+                    scored_at=datetime.utcnow(),
+                )
+            )
+        self.session.add_all(rows)
+        await self.session.flush()
+        return len(rows)

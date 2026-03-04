@@ -42,7 +42,7 @@ logger = get_logger(__name__)
 # -----------------------------------------------------------------
 
 CHANNELS = ["WEB", "API", "POS", "ATM", "MOBILE"]
-CURRENCIES = ["USD", "EUR", "GBP"]
+CURRENCIES = ["INR"]
 COUNTRIES = ["US", "GB", "DE", "IN", "JP", "BR", "XX"]
 ANALYSTS = [
     ("analyst-001", "Sarah Chen"),

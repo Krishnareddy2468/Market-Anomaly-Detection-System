@@ -12,11 +12,15 @@ export interface Alert {
 
 export interface AlertDetail {
   alert_id: string
+  timestamp: string
   entity: string
   status: AlertStatus
   risk_score: number
-  transaction: Transaction
+  severity: AlertSeverity
+  description?: string
+  transaction?: Transaction
   feature_deviations: FeatureDeviation[]
+  historical_scores?: number[]
 }
 
 export interface Transaction {
@@ -26,13 +30,17 @@ export interface Transaction {
   timestamp: string
   source_account: string
   destination_account: string
-  ip_address: string
+  channel?: string
+  ip_address?: string
+  device_fingerprint?: string
 }
 
 export interface FeatureDeviation {
   feature: string
   deviation: string
-  severity: AlertSeverity
+  risk_level: 'VERY_HIGH' | 'HIGH' | 'MEDIUM' | 'LOW' | 'MINIMAL'
+  value?: number
+  baseline?: number
 }
 
 export interface AlertsResponse {
@@ -54,10 +62,31 @@ export interface AlertFilters {
 
 export interface InvestigationDecision {
   decision: 'FRAUD' | 'LEGITIMATE' | 'REVIEW'
-  notes: string
+  notes?: string
+  analyst_id?: string
 }
 
 export interface InvestigationResponse {
-  status: 'SUCCESS' | 'ERROR'
-  updated_alert_status: AlertStatus
+  success: boolean
+  alert_id: string
+  updated_status: AlertStatus
+  message: string
+}
+
+export interface InvestigationNote {
+  note_id: string
+  content: string
+  analyst_id: string
+  timestamp: string
+}
+
+export interface Investigation {
+  alert_id: string
+  entity: string
+  status: AlertStatus
+  risk_score: number
+  transaction?: Transaction
+  feature_deviations: FeatureDeviation[]
+  historical_behavior: Array<{ date: string; score: number; model?: string }>
+  notes: InvestigationNote[]
 }

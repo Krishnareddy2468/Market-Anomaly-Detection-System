@@ -6,6 +6,7 @@ Data access layer for transaction operations.
 
 from datetime import datetime, timedelta
 from typing import List, Optional
+import uuid
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +33,15 @@ class TransactionRepository:
         )
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_by_db_id(self, id: str) -> Optional[TransactionModel]:
+        """Get transaction by internal DB primary key."""
+        if not self.session:
+            return None
+
+        query = select(TransactionModel).where(TransactionModel.id == id)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
     
     async def get_by_account(
         self,
@@ -54,6 +64,45 @@ class TransactionRepository:
         
         result = await self.session.execute(query)
         return list(result.scalars().all())
+
+    async def create(
+        self,
+        transaction_id: str,
+        amount: float,
+        timestamp: datetime,
+        source_account: str,
+        destination_account: str,
+        entity_id: str,
+        entity_type,
+        currency: str = "INR",
+        channel: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        device_fingerprint: Optional[str] = None,
+        geo_country: Optional[str] = None,
+    ) -> Optional[TransactionModel]:
+        """Create a new transaction row."""
+        if not self.session:
+            return None
+
+        row = TransactionModel(
+            id=str(uuid.uuid4()),
+            transaction_id=transaction_id,
+            amount=amount,
+            currency=currency,
+            timestamp=timestamp,
+            channel=channel,
+            entity_id=entity_id,
+            entity_type=entity_type,
+            source_account=source_account,
+            destination_account=destination_account,
+            ip_address=ip_address,
+            device_fingerprint=device_fingerprint,
+            geo_country=geo_country,
+            created_at=datetime.utcnow(),
+        )
+        self.session.add(row)
+        await self.session.flush()
+        return row
     
     async def get_historical_for_entity(
         self,
@@ -84,6 +133,22 @@ class TransactionRepository:
             return 0
         
         query = select(func.count(TransactionModel.id))
+        result = await self.session.execute(query)
+        return result.scalar_one()
+
+    async def get_count_in_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> int:
+        """Get transaction count in a timestamp window."""
+        if not self.session:
+            return 0
+
+        query = select(func.count(TransactionModel.id)).where(
+            (TransactionModel.timestamp >= start_time)
+            & (TransactionModel.timestamp < end_time)
+        )
         result = await self.session.execute(query)
         return result.scalar_one()
     

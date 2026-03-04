@@ -25,7 +25,7 @@ class StatisticalDetector(BaseDetector):
     """
     
     # Thresholds
-    HIGH_AMOUNT_THRESHOLD = 10000  # USD
+    HIGH_AMOUNT_THRESHOLD = 100000  # INR
     ZSCORE_THRESHOLD = 3.0
     VELOCITY_THRESHOLD = 5  # transactions per hour
     

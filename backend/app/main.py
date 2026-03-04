@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.api.routes import alerts, analytics, dashboard, feedback, investigations
+from app.api.routes import alerts, analytics, dashboard, detection, feedback, investigations
 from app.api.middleware import RequestLoggingMiddleware, ObservabilityMiddleware
 from app.core.errors import AppException, register_exception_handlers
 from app.core.logging import setup_logging, get_logger
@@ -73,6 +73,7 @@ def create_application() -> FastAPI:
     app.include_router(investigations.router, prefix="/api/investigations", tags=["Investigations"])
     app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
     app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
+    app.include_router(detection.router, prefix="/api/detection", tags=["Detection"])
     
     # Health Check
     @app.get("/health", tags=["Health"])
