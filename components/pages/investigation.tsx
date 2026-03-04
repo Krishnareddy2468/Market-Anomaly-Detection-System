@@ -11,11 +11,13 @@ import { Progress } from '@/components/ui/progress'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { AlertTriangle, TrendingUp } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils/formatters'
+import { useCurrency } from '@/lib/contexts/currency-context'
 
 export function InvestigationPage() {
   const [inputAlertId, setInputAlertId] = useState('ALT-1000')
   const [activeAlertId, setActiveAlertId] = useState('ALT-1000')
   const [note, setNote] = useState('')
+  const { currency: displayCurrency } = useCurrency()
 
   useEffect(() => {
     const selected = localStorage.getItem('selected_alert_id')
@@ -63,16 +65,21 @@ export function InvestigationPage() {
             { label: 'Timestamp', value: formatDate(investigation.transaction.timestamp) },
             {
               label: 'Amount',
-              value: formatCurrency(investigation.transaction.amount, investigation.transaction.currency),
+              value: formatCurrency(
+                investigation.transaction.amount,
+                investigation.transaction.currency,
+                displayCurrency,
+              ),
             },
-            { label: 'Currency', value: investigation.transaction.currency },
+            { label: 'Display Currency', value: displayCurrency },
+            { label: 'Source Currency', value: investigation.transaction.currency || 'INR' },
             { label: 'Source', value: investigation.transaction.source_account },
             { label: 'Destination', value: investigation.transaction.destination_account },
             { label: 'Channel', value: investigation.transaction.channel || '-' },
             { label: 'IP Address', value: investigation.transaction.ip_address || '-' },
           ]
         : [],
-    [investigation],
+    [displayCurrency, investigation],
   )
 
   const historicalData = (investigation?.historical_behavior || []).map((item, idx) => ({

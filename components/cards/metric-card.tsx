@@ -1,7 +1,8 @@
 import { Card } from '@/components/ui/card'
 import { ReactNode } from 'react'
-import { formatNumber, formatPercent } from '@/lib/utils/formatters'
+import { formatCurrency, formatNumber, formatPercent } from '@/lib/utils/formatters'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import { useCurrency } from '@/lib/contexts/currency-context'
 
 interface MetricCardProps {
   title: string
@@ -15,6 +16,7 @@ interface MetricCardProps {
 
 export function MetricCard({ title, value, icon, trend, unit, format = 'number' }: MetricCardProps) {
   const isPositive = trend ? trend > 0 : false
+  const { currency } = useCurrency()
 
   let formattedValue = value.toString()
   if (typeof value === 'number') {
@@ -23,7 +25,7 @@ export function MetricCard({ title, value, icon, trend, unit, format = 'number' 
     } else if (format === 'number') {
       formattedValue = formatNumber(value)
     } else if (format === 'currency') {
-      formattedValue = `$${formatNumber(value)}`
+      formattedValue = formatCurrency(value, 'INR', currency)
     }
   }
 

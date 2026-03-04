@@ -9,6 +9,7 @@ import { InvestigationPage } from '@/components/pages/investigation'
 import { AnalyticsPage } from '@/components/pages/analytics'
 import { FeedbackPage } from '@/components/pages/feedback'
 import { SettingsPage } from '@/components/pages/settings'
+import { CurrencyProvider } from '@/lib/contexts/currency-context'
 
 type Page = 'dashboard' | 'alerts' | 'investigations' | 'analytics' | 'feedback' | 'settings'
 
@@ -40,33 +41,35 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col">
-      <Sidebar
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-      />
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ marginLeft: sidebarOpen ? '16rem' : '5rem' }}>
-        <TopBar
-          pageTitle={
-            {
-              dashboard: 'Dashboard',
-              alerts: 'Alerts',
-              investigations: 'Investigations',
-              analytics: 'Analytics',
-              feedback: 'Feedback History',
-              settings: 'Settings',
-            }[currentPage]
-          }
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+    <CurrencyProvider>
+      <div className="h-screen bg-background text-foreground flex flex-col">
+        <Sidebar
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
-        <main className="flex-1 overflow-auto bg-background">
-          <Suspense fallback={<LoadingPlaceholder />}>
-            {renderPage()}
-          </Suspense>
-        </main>
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ marginLeft: sidebarOpen ? '16rem' : '5rem' }}>
+          <TopBar
+            pageTitle={
+              {
+                dashboard: 'Dashboard',
+                alerts: 'Alerts',
+                investigations: 'Investigations',
+                analytics: 'Analytics',
+                feedback: 'Feedback History',
+                settings: 'Settings',
+              }[currentPage]
+            }
+            onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          />
+          <main className="flex-1 overflow-auto bg-background">
+            <Suspense fallback={<LoadingPlaceholder />}>
+              {renderPage()}
+            </Suspense>
+          </main>
+        </div>
       </div>
-    </div>
+    </CurrencyProvider>
   )
 }

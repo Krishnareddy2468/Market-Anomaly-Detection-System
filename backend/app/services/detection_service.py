@@ -45,6 +45,23 @@ class DetectionService:
 
     async def evaluate(self, payload: DetectionRequest) -> DetectionResultData:
         """Evaluate one transaction and persist artifacts."""
+        historical_rows = await self.transaction_repo.get_historical_for_entity(
+            payload.entity_id,
+            days=30,
+        )
+        historical_transactions = [
+            {
+                "transaction_id": row.transaction_id,
+                "amount": float(row.amount),
+                "timestamp": row.timestamp,
+                "destination_account": row.destination_account,
+                "channel": row.channel,
+                "device_fingerprint": row.device_fingerprint,
+                "geo_country": row.geo_country,
+            }
+            for row in historical_rows
+        ]
+
         transaction = await self.transaction_repo.create(
             transaction_id=payload.transaction_id,
             amount=payload.amount,
@@ -68,10 +85,13 @@ class DetectionService:
             timestamp=payload.timestamp,
             source_account=payload.source_account,
             destination_account=payload.destination_account,
+            entity_id=payload.entity_id,
+            currency=payload.currency,
             channel=payload.channel,
             ip_address=payload.ip_address,
             device_fingerprint=payload.device_fingerprint,
             geo_location=payload.geo_country,
+            historical_transactions=historical_transactions,
         )
         output = await self.engine.process_transaction(engine_input)
 

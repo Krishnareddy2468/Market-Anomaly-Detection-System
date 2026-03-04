@@ -30,6 +30,8 @@ class TransactionInput:
     timestamp: datetime
     source_account: str
     destination_account: str
+    entity_id: Optional[str] = None
+    currency: str = "INR"
     channel: Optional[str] = None
     ip_address: Optional[str] = None
     device_fingerprint: Optional[str] = None

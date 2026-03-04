@@ -1,12 +1,45 @@
 import { AlertSeverity } from '../types'
 import { formatTimeRelative, formatTimeAbsolute, formatTimeTime } from './format-time'
 
-export const formatCurrency = (amount: number, currency: string = 'INR'): string => {
+export type SupportedCurrency = 'INR' | 'USD' | 'EUR'
+
+const INR_PER_UNIT: Record<SupportedCurrency, number> = {
+  INR: 1,
+  USD: 83,
+  EUR: 90,
+}
+
+const normalizeCurrency = (currency?: string): SupportedCurrency => {
+  const upper = (currency || 'INR').toUpperCase()
+  if (upper === 'USD' || upper === 'EUR' || upper === 'INR') {
+    return upper
+  }
+  return 'INR'
+}
+
+const convertCurrency = (
+  amount: number,
+  fromCurrency: string = 'INR',
+  toCurrency: string = 'INR',
+): number => {
+  const from = normalizeCurrency(fromCurrency)
+  const to = normalizeCurrency(toCurrency)
+  const amountInInr = amount * INR_PER_UNIT[from]
+  return amountInInr / INR_PER_UNIT[to]
+}
+
+export const formatCurrency = (
+  amount: number,
+  sourceCurrency: string = 'INR',
+  targetCurrency: string = 'INR',
+): string => {
+  const normalizedTarget = normalizeCurrency(targetCurrency)
+  const convertedAmount = convertCurrency(amount, sourceCurrency, normalizedTarget)
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency,
+    currency: normalizedTarget,
     minimumFractionDigits: 2,
-  }).format(amount)
+  }).format(convertedAmount)
 }
 
 export const formatDate = (dateString: string): string => {
