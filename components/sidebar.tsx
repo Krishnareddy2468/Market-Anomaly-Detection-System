@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, LayoutDashboard, AlertCircle, Search, TrendingUp, History, Settings, Shield } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutDashboard, Radar, AlertCircle, Search, TrendingUp, History, Settings, Shield, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface SidebarProps {
@@ -12,11 +12,13 @@ interface SidebarProps {
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'scanner', label: 'Live Scanner', icon: Radar },
   { id: 'alerts', label: 'Alerts', icon: AlertCircle },
   { id: 'investigations', label: 'Investigations', icon: Search },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp },
   { id: 'feedback', label: 'Feedback History', icon: History },
   { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'about', label: 'About', icon: Info },
 ]
 
 export function Sidebar({ currentPage, onPageChange, isOpen, onToggle }: SidebarProps) {
