@@ -23,7 +23,7 @@ function localISOTimestamp(hour: number, minute = 17): string {
 
 const DEMO_SCENARIOS = [
   {
-    label: '🚨 Suspicious: ₹76.7L at 2 AM, unknown IP',
+    label: 'Suspicious: ₹76.7L at 2 AM, unknown IP',
     payload: {
       transaction_id: `LIVE-${Date.now()}`,
       amount: 76_70_000,
@@ -46,7 +46,7 @@ const DEMO_SCENARIOS = [
     },
   },
   {
-    label: '✅ Normal: ₹2,850 grocery purchase',
+    label: 'Normal: ₹2,850 grocery purchase',
     payload: {
       transaction_id: `LIVE-${Date.now()}`,
       amount: 2_850,
@@ -69,7 +69,7 @@ const DEMO_SCENARIOS = [
     },
   },
   {
-    label: '⚠️  Velocity spike: 6 rapid ₹15L wire transfers',
+    label: 'Velocity spike: 6 rapid ₹15L wire transfers',
     payload: {
       transaction_id: `LIVE-${Date.now()}`,
       amount: 15_10_000,
