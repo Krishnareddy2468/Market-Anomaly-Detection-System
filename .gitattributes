@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────────
+# GitHub Linguist language statistics
+# ─────────────────────────────────────────────────────────────────────────
+# This is a Python-based market anomaly / fraud detection system with a
+# Next.js dashboard. A large share of the TypeScript is *generated* UI
+# scaffolding (shadcn/ui + Radix primitives), and the HTML/JS are generated
+# documentation and tooling — none of which is hand-written application
+# code. The rules below exclude them so the language bar reflects the real
+# project. (Markdown is already excluded by Linguist as prose.)
+
+# Generated UI primitives from shadcn/ui — not authored here
+components/ui/**          linguist-vendored
+
+# HTML documentation generated from Markdown by scripts/md-to-html.js
+PROJECT_DOCUMENTATION.html linguist-generated
+
+# Documentation / build tooling, not part of the application
+scripts/*.js             linguist-vendored
+
+# Lockfiles (Linguist handles most, but be explicit)
+package-lock.json        linguist-generated
