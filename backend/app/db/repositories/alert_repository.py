@@ -189,25 +189,30 @@ class AlertRepository:
     async def get_trend_data(
         self,
         hours: int = 24,
+        bucket: str = "hour",
     ) -> List[dict]:
-        """Get hourly alert counts for trend chart (based on detection_time)."""
+        """
+        Get alert counts bucketed by ``bucket`` ('hour' or 'day') for the
+        trend chart, based on detection_time.
+        """
         if not self.session:
             return []
-        
+
+        bucket = bucket if bucket in ("hour", "day") else "hour"
         start_time = datetime.utcnow() - timedelta(hours=hours)
-        
+
         query = (
             select(
-                func.date_trunc('hour', AlertModel.detection_time).label('hour'),
+                func.date_trunc(bucket, AlertModel.detection_time).label('bucket'),
                 func.count(AlertModel.id).label('count'),
             )
             .where(AlertModel.detection_time >= start_time)
-            .group_by('hour')
-            .order_by('hour')
+            .group_by('bucket')
+            .order_by('bucket')
         )
-        
+
         result = await self.session.execute(query)
-        return [{"hour": row.hour, "count": row.count} for row in result.all()]
+        return [{"hour": row.bucket, "count": row.count} for row in result.all()]
 
     async def get_high_risk_alerts(
         self,

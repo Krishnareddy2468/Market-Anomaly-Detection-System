@@ -104,16 +104,17 @@ class DashboardService:
         logger.info("Fetching alerts trend", range=range)
 
         if range == "24h":
-            raw = await self.alert_repo.get_trend_data(hours=24)
+            raw = await self.alert_repo.get_trend_data(hours=24, bucket="hour")
             timestamps = [row["hour"].strftime("%H:%M") for row in raw]
             values = [row["count"] for row in raw]
         elif range == "7d":
-            raw = await self.alert_repo.get_trend_data(hours=24 * 7)
-            timestamps = [row["hour"].strftime("%a %H:%M") for row in raw]
+            # Daily buckets so each point aggregates a full day's alerts.
+            raw = await self.alert_repo.get_trend_data(hours=24 * 7, bucket="day")
+            timestamps = [row["hour"].strftime("%a %d") for row in raw]
             values = [row["count"] for row in raw]
         else:  # 30d
-            raw = await self.alert_repo.get_trend_data(hours=24 * 30)
-            timestamps = [row["hour"].strftime("%m-%d %H:%M") for row in raw]
+            raw = await self.alert_repo.get_trend_data(hours=24 * 30, bucket="day")
+            timestamps = [row["hour"].strftime("%b %d") for row in raw]
             values = [row["count"] for row in raw]
 
         return AlertsTrend(timestamps=timestamps, values=values)
