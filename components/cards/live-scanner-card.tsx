@@ -104,6 +104,12 @@ interface DetectionResult {
   processing_time_ms: number
 }
 
+const MODEL_LABELS: Record<string, string> = {
+  statistical: 'Statistical',
+  behavioral: 'Behavioral',
+  ml: 'ML Model',
+}
+
 const severityColor: Record<string, string> = {
   CRITICAL: 'bg-red-500',
   HIGH: 'bg-orange-500',
@@ -366,7 +372,7 @@ export function LiveScannerCard() {
                 const barColor = s >= 70 ? 'bg-red-500' : s >= 40 ? 'bg-yellow-500' : 'bg-emerald-500'
                 return (
                   <div key={model} className="rounded-lg border border-border bg-card p-3 space-y-2">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wide capitalize">{model.replace('_', ' ')}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{MODEL_LABELS[model] ?? model.replace('_', ' ')}</div>
                     <div className="text-lg font-bold text-foreground">{s.toFixed(1)}</div>
                     <div className="h-1 rounded-full bg-muted overflow-hidden">
                       <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${s}%` }} />
