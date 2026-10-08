@@ -49,27 +49,41 @@ class Base(DeclarativeBase):
 
 async def init_db() -> None:
     """
-    Initialize database connection and create tables.
-    
+    Initialize database connection and (in development) create tables.
+
+    Schema ownership:
+      • development → tables are auto-created from the ORM metadata for a
+        frictionless local/MVP setup and for the seeder.
+      • staging/production → the schema is owned by Alembic migrations
+        (`alembic upgrade head`), so auto-create is intentionally skipped.
+        This keeps a single source of truth and avoids silent drift.
+
     Called during application startup.
     """
     logger.info("Initializing database connection", url=settings.DATABASE_URL[:50])
-    
-    async with engine.begin() as conn:
-        # Import all models to ensure they're registered with Base.metadata
-        from app.db.models import (  # noqa: F401
-            TransactionModel,
-            FeatureSnapshotModel,
-            AlertModel,
-            ModelScoreRecordModel,
-            InvestigationModel,
-            FeedbackModel,
-            MetricsSnapshotModel,
+
+    if settings.ENVIRONMENT == "development":
+        async with engine.begin() as conn:
+            # Import all models to ensure they're registered with Base.metadata
+            from app.db.models import (  # noqa: F401
+                TransactionModel,
+                FeatureSnapshotModel,
+                AlertModel,
+                ModelScoreRecordModel,
+                InvestigationModel,
+                FeedbackModel,
+                MetricsSnapshotModel,
+            )
+
+            # Auto-create tables for development / MVP convenience.
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database schema ensured (development auto-create)")
+    else:
+        logger.info(
+            "Skipping auto-create; schema is managed by Alembic migrations",
+            environment=settings.ENVIRONMENT,
         )
-        
-        # Create tables (for development/MVP)
-        await conn.run_sync(Base.metadata.create_all)
-    
+
     logger.info("Database initialization complete")
 
 
