@@ -9,6 +9,7 @@ import { AlertsDataTable } from '@/components/tables/alerts-data-table'
 import { Card } from '@/components/ui/card'
 import { AlertCircle, TrendingUp, AlertTriangle, PieChart as PieChartIcon } from 'lucide-react'
 import { PageContainer } from '@/components/layout/page-container'
+import { LiveScannerCard } from '@/components/cards/live-scanner-card'
 
 export function Dashboard() {
   const { metrics, trend, isLoading: dashboardLoading } = useDashboardData()
@@ -18,9 +19,18 @@ export function Dashboard() {
     <PageContainer>
       <div className="space-y-6">
         {/* Page Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Real-time fraud detection and alert monitoring</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Real-time fraud detection overview</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="text-xs font-medium text-muted-foreground">System Active</span>
+          </div>
         </div>
 
         {/* KPI Cards */}
@@ -31,6 +41,7 @@ export function Dashboard() {
             format="number"
             icon={<TrendingUp className="h-5 w-5" />}
             trend={metrics?.trends.alerts_change_pct}
+            accentColor="bg-blue-500/10 text-blue-500"
           />
           <MetricCard
             title="Active Alerts"
@@ -38,12 +49,14 @@ export function Dashboard() {
             format="number"
             icon={<AlertCircle className="h-5 w-5" />}
             trend={metrics?.trends.alerts_change_pct}
+            accentColor="bg-amber-500/10 text-amber-500"
           />
           <MetricCard
             title="High-Risk Alerts"
             value={metrics?.high_risk_alerts || 0}
             format="number"
             icon={<AlertTriangle className="h-5 w-5" />}
+            accentColor="bg-red-500/10 text-red-500"
           />
           <MetricCard
             title="False Positive Rate"
@@ -52,6 +65,7 @@ export function Dashboard() {
             unit="%"
             icon={<PieChartIcon className="h-5 w-5" />}
             trend={metrics?.trends.false_positive_change_pct}
+            accentColor="bg-emerald-500/10 text-emerald-500"
           />
         </div>
 
@@ -64,10 +78,23 @@ export function Dashboard() {
         </div>
 
         {/* Recent Alerts Table */}
-        <Card className="p-6 bg-card">
-          <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Alerts</h3>
+        <Card className="p-6 bg-card border-border">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10">
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Recent Alerts</h3>
+                <p className="text-xs text-muted-foreground">Latest flagged transactions</p>
+              </div>
+            </div>
+          </div>
           <AlertsDataTable data={alertsData?.data || []} isLoading={alertsLoading} />
         </Card>
+
+        {/* Live Detection Demo */}
+        <LiveScannerCard />
       </div>
     </PageContainer>
   )

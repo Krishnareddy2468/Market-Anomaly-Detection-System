@@ -49,7 +49,7 @@ export default function Home() {
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ marginLeft: sidebarOpen ? '16rem' : '5rem' }}>
+        <div className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out" style={{ marginLeft: sidebarOpen ? '16rem' : '4.5rem' }}>
           <TopBar
             pageTitle={
               {
