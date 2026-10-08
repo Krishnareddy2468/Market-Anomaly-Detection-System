@@ -1,6 +1,6 @@
-# Step 5 — Detection & Scoring Engine: Intelligence Architecture
+# Step 5 - Detection & Scoring Engine: Intelligence Architecture
 
-> **Scope:** How the system *thinks* — not how it's coded.  
+> **Scope:** How the system *thinks* - not how it's coded.  
 > **Status:** 🔒 DESIGNED  
 > **Last updated:** 2026-02-10  
 
@@ -39,7 +39,7 @@ This is the foundational rule. It means:
 - Multiple detectors run **in parallel** on every transaction
 - Each detector produces a **normalised score** in [0, 1]
 - Scores are **fused** into a single composite risk score
-- **Thresholds** — not models — decide whether to alert
+- **Thresholds** - not models - decide whether to alert
 
 ### Why This Matters
 
@@ -90,7 +90,7 @@ The engine uses three logical detection layers, each specialised for a different
 
 ### Layer 1: Statistical Detection
 
-**Purpose:** Fast baseline anomaly detection — catch extreme deviations that don't need context.
+**Purpose:** Fast baseline anomaly detection - catch extreme deviations that don't need context.
 
 | Aspect | Detail |
 |--------|--------|
@@ -113,7 +113,7 @@ Reason: "Transaction amount $48,500 exceeds 99.9th percentile of all transaction
 
 ### Layer 2: Behavioral Detection
 
-**Purpose:** Detect changes relative to the *same entity's* past behavior — not the global population.
+**Purpose:** Detect changes relative to the *same entity's* past behavior - not the global population.
 
 | Aspect | Detail |
 |--------|--------|
@@ -154,7 +154,7 @@ Reason: "Entity ENT-1042 deviated from personal baseline across 3 dimensions"
 ```
 Signal: isolation_score = 0.87 (anomaly threshold: 0.65)
 Signal: top_contributing_features = [velocity_score, geo_risk, amount_pct_change]
-Reason: "Rare multi-dimensional pattern detected — combination of features is unusual"
+Reason: "Rare multi-dimensional pattern detected - combination of features is unusual"
 ```
 
 **Model-agnostic design:** The ML layer is a *slot*, not a specific algorithm. It can host Isolation Forest, Autoencoders, or any future model. The interface is fixed; the internals are swappable.
@@ -183,9 +183,9 @@ Raw Score → Normaliser → Normalised Score ∈ [0, 1]
 
 | Normalisation Method | When Used |
 |---------------------|-----------|
-| **Sigmoid** | Unbounded scores (Z-scores) — compresses extreme values |
+| **Sigmoid** | Unbounded scores (Z-scores) - compresses extreme values |
 | **Min-Max** | Bounded scores with known range |
-| **Percentile** | When distribution shape is unknown — rank-based |
+| **Percentile** | When distribution shape is unknown - rank-based |
 | **Clamp + Linear** | When domain bounds are well-understood |
 
 ### Why This Matters
@@ -216,7 +216,7 @@ where W₁ + W₂ + W₃ = 1.0
 
 | Detector | Weight | Rationale |
 |----------|--------|-----------|
-| Statistical | 0.25 | Fast but shallow — good first filter |
+| Statistical | 0.25 | Fast but shallow - good first filter |
 | Behavioral | 0.35 | Strongest signal for known entities |
 | ML | 0.40 | Best at catching novel patterns |
 
@@ -258,9 +258,9 @@ The composite risk score is mapped to human-friendly severity labels.
 
 ### Purpose
 
-- **Reduce analyst cognitive load** — don't make humans interpret raw scores
-- **Enable alert prioritisation** — CRITICAL before HIGH before MEDIUM
-- **Support SLA definitions** — "all CRITICAL alerts investigated within 15 minutes"
+- **Reduce analyst cognitive load** - don't make humans interpret raw scores
+- **Enable alert prioritisation** - CRITICAL before HIGH before MEDIUM
+- **Support SLA definitions** - "all CRITICAL alerts investigated within 15 minutes"
 
 ### Design Rule
 
@@ -324,7 +324,7 @@ Maximum N alerts per entity per time window. Prevents alert storms from a single
 
 | Question | Explainability Artifact |
 |----------|----------------------|
-| **Why was it flagged?** | Feature deviation list — which features contributed most |
+| **Why was it flagged?** | Feature deviation list - which features contributed most |
 | **Which detectors agreed?** | Detector contribution breakdown with individual scores |
 | **How does it compare to normal?** | Historical baseline comparison |
 
@@ -335,9 +335,9 @@ For every alert, the system produces:
 ```
 Explainability Package:
 ├── Feature Contributions
-│   ├── amount_zscore: 4.2 (STATISTICAL — HIGH contribution)
-│   ├── frequency_deviation: 2.8 (BEHAVIORAL — MEDIUM contribution)
-│   ├── geo_risk_score: 0.91 (CONTEXTUAL — HIGH contribution)
+│   ├── amount_zscore: 4.2 (STATISTICAL - HIGH contribution)
+│   ├── frequency_deviation: 2.8 (BEHAVIORAL - MEDIUM contribution)
+│   ├── geo_risk_score: 0.91 (CONTEXTUAL - HIGH contribution)
 │   └── ... (all features ranked by contribution)
 │
 ├── Detector Agreement
@@ -354,7 +354,7 @@ Explainability Package:
 
 ### Analyst Trust
 
-Explainability is not a nice-to-have — it's a **trust mechanism**:
+Explainability is not a nice-to-have - it's a **trust mechanism**:
 
 - Analysts who understand *why* make faster decisions
 - Analysts who trust the system provide better feedback

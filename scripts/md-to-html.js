@@ -71,7 +71,7 @@ const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Market Anomaly & Fraud Detection System — Project Documentation</title>
+<title>Market Anomaly & Fraud Detection System - Project Documentation</title>
 <style>
   @page { 
     margin: 0.8in 1in; 

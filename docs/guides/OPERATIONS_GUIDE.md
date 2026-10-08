@@ -1,4 +1,4 @@
-# Market Anomaly Detection System — Operations Guide
+# Market Anomaly Detection System - Operations Guide
 
 > Everything you need to run, manage, and operate the system locally.
 
@@ -26,15 +26,15 @@
 Open **3 terminal tabs** and run:
 
 ```bash
-# Tab 1 — PostgreSQL (usually already running)
+# Tab 1 - PostgreSQL (usually already running)
 brew services start postgresql@16
 
-# Tab 2 — Backend
+# Tab 2 - Backend
 cd "/Users/krishnareddy/ my Projects/Market-Anomaly-Detection-System/backend"
 source venv/bin/activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Tab 3 — Frontend
+# Tab 3 - Frontend
 cd "/Users/krishnareddy/ my Projects/Market-Anomaly-Detection-System"
 npm run dev
 ```
@@ -163,7 +163,7 @@ LIMIT 20;
 # Create a new database
 /opt/homebrew/opt/postgresql@16/bin/createdb my_database
 
-# Delete a database (CAREFUL — this is permanent!)
+# Delete a database (CAREFUL - this is permanent!)
 /opt/homebrew/opt/postgresql@16/bin/dropdb my_database
 
 # Reset fraud_detection database (drop + recreate + seed)
@@ -281,21 +281,21 @@ npm start
 
 ### Step-by-Step
 
-**Terminal Tab 1 — Database:**
+**Terminal Tab 1 - Database:**
 ```bash
 brew services start postgresql@16
 # Verify it's running:
 brew services list | grep postgresql
 ```
 
-**Terminal Tab 2 — Backend:**
+**Terminal Tab 2 - Backend:**
 ```bash
 cd "/Users/krishnareddy/ my Projects/Market-Anomaly-Detection-System/backend"
 source venv/bin/activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-**Terminal Tab 3 — Frontend:**
+**Terminal Tab 3 - Frontend:**
 ```bash
 cd "/Users/krishnareddy/ my Projects/Market-Anomaly-Detection-System"
 npm run dev
@@ -306,7 +306,7 @@ npm run dev
 ```bash
 # 1. Stop Frontend: Ctrl+C in Tab 3
 # 2. Stop Backend:  Ctrl+C in Tab 2
-# 3. Stop PostgreSQL (optional — it's fine to leave running):
+# 3. Stop PostgreSQL (optional - it's fine to leave running):
 brew services stop postgresql@16
 ```
 
@@ -354,7 +354,7 @@ brew services stop postgresql@16
 ### Clear All Data (Keep Tables)
 
 ```sql
--- Inside psql (CAREFUL — deletes all data!):
+-- Inside psql (CAREFUL - deletes all data!):
 TRUNCATE transactions, feature_snapshots, alerts, model_score_records, investigations, feedback, metrics_snapshots CASCADE;
 ```
 
@@ -461,9 +461,9 @@ git log -n 5 --oneline
 
 | Excluded | Why |
 |----------|-----|
-| `backend/venv/` | Virtual environment — recreated via `pip install` |
-| `backend/.env` | Contains local secrets — use `.env.example` as template |
-| `node_modules/` | npm packages — recreated via `npm install` |
+| `backend/venv/` | Virtual environment - recreated via `pip install` |
+| `backend/.env` | Contains local secrets - use `.env.example` as template |
+| `node_modules/` | npm packages - recreated via `npm install` |
 | `.next/` | Next.js build cache |
 | `__pycache__/` | Python bytecode cache |
 | `*.db` | SQLite files (not used, but excluded as precaution) |
@@ -498,7 +498,7 @@ DEBUG=true              # false for production
 
 ### Frontend
 
-API URL configured in Next.js — points to `http://localhost:8000` during development.
+API URL configured in Next.js - points to `http://localhost:8000` during development.
 
 ---
 

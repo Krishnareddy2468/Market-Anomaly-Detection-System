@@ -1,6 +1,6 @@
-# Step 6 — Alert & Investigation System: Operational Architecture
+# Step 6 - Alert & Investigation System: Operational Architecture
 
-> **Scope:** How anomalies become operations — alerts, investigations, feedback, and continuous improvement.  
+> **Scope:** How anomalies become operations - alerts, investigations, feedback, and continuous improvement.  
 > **Status:** 🔒 DESIGNED  
 > **Last updated:** 2026-02-10  
 
@@ -10,7 +10,7 @@
 
 > **Industry reality: Models do not stop fraud. Operations do.**
 
-The detection engine (Step 5) produces risk signals. This step defines how those signals become **human-actionable operations** — and how human decisions flow back to improve the system.
+The detection engine (Step 5) produces risk signals. This step defines how those signals become **human-actionable operations** - and how human decisions flow back to improve the system.
 
 A good operational system does four things:
 
@@ -55,12 +55,12 @@ CREATED ──────► ACTIVE         (automatic, immediate)
 ACTIVE ───────► IN_REVIEW      (analyst claims alert)
 IN_REVIEW ────► RESOLVED       (analyst submits decision)
 RESOLVED ─────► CLOSED         (after review period or supervisor sign-off)
-IN_REVIEW ────► ACTIVE         (analyst releases — only valid backward transition)
+IN_REVIEW ────► ACTIVE         (analyst releases - only valid backward transition)
 ```
 
 ### Design Rule
 
-> **Alerts move forward only** — with one exception: an analyst may release an IN_REVIEW alert back to ACTIVE (unclaim). No other backward transitions are permitted.
+> **Alerts move forward only** - with one exception: an analyst may release an IN_REVIEW alert back to ACTIVE (unclaim). No other backward transitions are permitted.
 
 ### State Transition Audit
 
@@ -163,15 +163,15 @@ When an analyst opens an alert, the system automatically presents:
 | **Geo & device info** | `transactions` table | IP, location, device fingerprint |
 | **Similar past cases** | `alerts` + `feedback` (similarity query) | How similar alerts were resolved |
 
-This context is assembled from the database — **no manual lookup required**.
+This context is assembled from the database - **no manual lookup required**.
 
 ### Step 4: Analyst Decision Options
 
 | Decision | Meaning | System Response |
 |----------|---------|----------------|
-| **FRAUD** | True positive — this is real fraud | Reinforces model confidence; may trigger downstream actions |
-| **FALSE_POSITIVE** | Model overreach — not actually fraud | Triggers threshold/weight adjustment consideration |
-| **UNCERTAIN** | Boundary case — needs escalation or more data | Alert stays in queue for senior review |
+| **FRAUD** | True positive - this is real fraud | Reinforces model confidence; may trigger downstream actions |
+| **FALSE_POSITIVE** | Model overreach - not actually fraud | Triggers threshold/weight adjustment consideration |
+| **UNCERTAIN** | Boundary case - needs escalation or more data | Alert stays in queue for senior review |
 
 ### Analyst Inputs Per Decision
 
@@ -240,15 +240,15 @@ Decision Submitted
 
 > **Design Rule: Feedback is data. Treat it like gold.**
 
-Human decisions are not just outcomes — they are **training signals** that improve the system over time.
+Human decisions are not just outcomes - they are **training signals** that improve the system over time.
 
 ### Feedback Types and Their Meaning
 
 | Decision | System Interpretation | Learning Signal |
 |----------|----------------------|-----------------|
-| **FRAUD** | True positive — detection was correct | Positive reinforcement for contributing detectors |
-| **FALSE_POSITIVE** | Model overreach — detection was wrong | Negative signal — detectors need adjustment |
-| **UNCERTAIN** | Boundary case | Weak signal — may indicate threshold is near-optimal |
+| **FRAUD** | True positive - detection was correct | Positive reinforcement for contributing detectors |
+| **FALSE_POSITIVE** | Model overreach - detection was wrong | Negative signal - detectors need adjustment |
+| **UNCERTAIN** | Boundary case | Weak signal - may indicate threshold is near-optimal |
 
 ### How Feedback Is Used
 
@@ -417,7 +417,7 @@ ALERT: ALT-1042 (CRITICAL, Risk Score: 92.3)
 ├── INVESTIGATION TIMELINE
 │   ├── 10:15:00  CREATED → ACTIVE
 │   ├── 10:17:23  ACTIVE → IN_REVIEW (analyst: Sarah Chen)
-│   ├── 10:22:45  NOTE: "Confirmed geo mismatch — user's
+│   ├── 10:22:45  NOTE: "Confirmed geo mismatch - user's
 │   │                     known location is NYC, transaction
 │   │                     originated from Lagos, Nigeria"
 │   ├── 10:28:12  NOTE: "Destination account flagged in 2

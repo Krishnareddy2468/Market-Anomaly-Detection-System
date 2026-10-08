@@ -1,4 +1,4 @@
-# Step 7 — Deployment & Production Design
+# Step 7 - Deployment & Production Design
 
 > **Scope:** How the system moves from local build to hosted, reliable, demo-ready product.  
 > **Status:** 🔒 DESIGNED  
@@ -8,7 +8,7 @@
 
 ## 7.1 Deployment Philosophy
 
-This is a **personal, industry-style product** — not a hyperscale enterprise system. The design is intentionally scoped for a solo developer who wants to demonstrate production-grade thinking.
+This is a **personal, industry-style product** - not a hyperscale enterprise system. The design is intentionally scoped for a solo developer who wants to demonstrate production-grade thinking.
 
 ### Design Goals
 
@@ -23,7 +23,7 @@ This is a **personal, industry-style product** — not a hyperscale enterprise s
 
 > **One deployable system first, modular later.**
 
-Premature microservice decomposition is a bigger risk than a well-structured monolith. The backend is designed as a modular monolith that can be split when — and only when — there's a reason to.
+Premature microservice decomposition is a bigger risk than a well-structured monolith. The backend is designed as a modular monolith that can be split when - and only when - there's a reason to.
 
 ---
 
@@ -167,9 +167,9 @@ Every tunable parameter lives in environment variables, not in code:
 ### Configuration Hierarchy
 
 ```
-1. Environment variables (highest priority — set on host)
+1. Environment variables (highest priority - set on host)
 2. .env file (local development override)
-3. Code defaults (fallback — defined in config.py)
+3. Code defaults (fallback - defined in config.py)
 ```
 
 ### Operational Examples
@@ -198,7 +198,7 @@ The system is designed to scale but does not require it at MVP.
 
 ### Horizontal Scaling (Backend)
 
-The backend is **stateless** — all state lives in PostgreSQL. This means:
+The backend is **stateless** - all state lives in PostgreSQL. This means:
 
 ```
                     ┌──────────────────┐
@@ -405,7 +405,7 @@ Every request produces a structured log entry:
 
 Being able to show observability in a demo proves production thinking:
 - "Here's my request rate over the last hour"
-- "Here's my p95 latency — consistently under 200ms"
+- "Here's my p95 latency - consistently under 200ms"
 - "Here's my false positive rate trending downward after feedback"
 
 ---
@@ -449,7 +449,7 @@ A live visitor or interviewer can:
 | Action | What It Proves |
 |--------|---------------|
 | **Open dashboard** | Real-time metrics, responsive design, data visualization |
-| **Browse alerts** | Paginated, filtered, sortable — production-grade UI |
+| **Browse alerts** | Paginated, filtered, sortable - production-grade UI |
 | **Click into an alert** | Context auto-loads: transaction, features, detector scores |
 | **Review investigation** | Full audit trail with analyst actions and timestamps |
 | **See metrics** | Model performance, false positive rates, resolution times |
@@ -460,7 +460,7 @@ A live visitor or interviewer can:
 ```
 "I designed and built an end-to-end anomaly detection platform 
 with three detection layers, composite risk scoring, human-in-the-loop 
-feedback, and adaptive thresholds — following production-grade 
+feedback, and adaptive thresholds - following production-grade 
 architectural principles."
 
 Key talking points:
@@ -482,7 +482,7 @@ The repository should demonstrate:
 | **Tech stack** | Next.js, FastAPI, PostgreSQL, SQLAlchemy, scikit-learn |
 | **Setup instructions** | Local development in 5 commands |
 | **API documentation** | Auto-generated via FastAPI `/docs` |
-| **Design documents** | Steps 5, 6, 7 in `docs/` — proves systematic thinking |
+| **Design documents** | Steps 5, 6, 7 in `docs/` - proves systematic thinking |
 | **Live demo link** | Deployed URL (Vercel + AWS) |
 
 ---
@@ -538,7 +538,7 @@ Step 6: Alert & Investigation Workflows (business logic)
     ↕ served by
 Step 3: API Layer (FastAPI)
     ↕ deployed via
-Step 7: THIS STEP — Deployment & Production Design
+Step 7: THIS STEP - Deployment & Production Design
 ```
 
 Every design decision flows through:

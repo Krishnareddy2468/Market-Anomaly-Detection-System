@@ -1,14 +1,14 @@
 # Market Anomaly & Fraud Detection System
 
-> Real-time, ML-powered transaction monitoring that scores every transaction for fraud risk in **under 25 ms** — and gets smarter from analyst feedback.
+> Real-time, ML-powered transaction monitoring that scores every transaction for fraud risk in **under 25 ms** - and gets smarter from analyst feedback.
 
-A full-stack fraud detection platform: a **Python / FastAPI** detection engine (the core) behind a **Next.js** analyst dashboard. Instead of brittle "flag anything over ₹X" rules, it asks a better question — *does this look normal for **this** entity?* — using three independent detection layers combined into a single composite risk score.
+A full-stack fraud detection platform: a **Python / FastAPI** detection engine (the core) behind a **Next.js** analyst dashboard. Instead of brittle "flag anything over ₹X" rules, it asks a better question - *does this look normal for **this** entity?* - using three independent detection layers combined into a single composite risk score.
 
 ---
 
 ## Why
 
-Rule-based fraud systems drown analysts in false positives (industry average **70–80%**). Fraudsters learn fixed thresholds in days, and legitimate customers get frozen. This system blends statistical rules, per-entity behavioral baselines, and an unsupervised ML model so that **when all three agree, you can trust the alert** — and every analyst decision feeds back into the model.
+Rule-based fraud systems drown analysts in false positives (industry average **70–80%**). Fraudsters learn fixed thresholds in days, and legitimate customers get frozen. This system blends statistical rules, per-entity behavioral baselines, and an unsupervised ML model so that **when all three agree, you can trust the alert** - and every analyst decision feeds back into the model.
 
 ---
 
@@ -39,9 +39,9 @@ Transaction
             Marks FRAUD / FALSE POSITIVE ──▶ feedback stored ──▶ model retrains
 ```
 
-- **Statistical** — obvious outliers: large amounts, rapid-fire velocity, odd-hour (midnight–5 AM) activity, geo/device risk.
-- **Behavioral** — deviation from the entity's *own* baseline: spend spikes, first-time destinations, new channels, dormant-account reactivation.
-- **ML (Isolation Forest)** — multi-dimensional anomalies no single rule would catch. Unsupervised, so it needs no labelled data to start; a heuristic fallback keeps scoring alive if the model artifact is missing.
+- **Statistical** - obvious outliers: large amounts, rapid-fire velocity, odd-hour (midnight–5 AM) activity, geo/device risk.
+- **Behavioral** - deviation from the entity's *own* baseline: spend spikes, first-time destinations, new channels, dormant-account reactivation.
+- **ML (Isolation Forest)** - multi-dimensional anomalies no single rule would catch. Unsupervised, so it needs no labelled data to start; a heuristic fallback keeps scoring alive if the model artifact is missing.
 
 ---
 
@@ -121,7 +121,7 @@ uvicorn app.main:app --reload --port 8000
 
 API docs (when `DEBUG=true`): <http://localhost:8000/docs> · Health: <http://localhost:8000/health>
 
-> In `development`, the app also auto-creates tables on startup. In `staging`/`production` the schema is owned by Alembic — run `alembic upgrade head` as a deploy step.
+> In `development`, the app also auto-creates tables on startup. In `staging`/`production` the schema is owned by Alembic - run `alembic upgrade head` as a deploy step.
 
 ### 3. Frontend (Next.js)
 
@@ -151,7 +151,7 @@ python -m app.detection.train_model --dataset data/fraud_transactions.csv
 | **Alerts** | Filterable, paginated alert table with risk scores and severity badges |
 | **Investigation** | Transaction details, feature deviations, history, decision buttons |
 | **Analytics** | Precision / recall / F1, alert-volume trends, confusion matrix |
-| **Feedback** | Resolution history — confirmed frauds vs. false positives |
+| **Feedback** | Resolution history - confirmed frauds vs. false positives |
 | **Settings** | Alert thresholds, notifications, API key management |
 
 ---
@@ -163,7 +163,7 @@ Base: `http://localhost:8000`
 | Method & Endpoint | Description |
 |---|---|
 | `POST /api/detection/evaluate` | Score a transaction in real time (<25 ms) |
-| `GET  /api/dashboard/metrics` | KPIs — transactions, active alerts, FP rate |
+| `GET  /api/dashboard/metrics` | KPIs - transactions, active alerts, FP rate |
 | `GET  /api/dashboard/alerts-trend` · `/severity-distribution` | Trend & severity data |
 | `GET  /api/alerts` · `/api/alerts/{id}` | List / detail (severity, status, search, pagination) |
 | `PATCH /api/alerts/{id}/status` | Transition alert status (state-machine enforced) |
@@ -205,13 +205,13 @@ alembic downgrade -1                         # roll back one
 
 Realistic next steps that build on what's already here:
 
-- **Close the feedback loop** — retrain the model on accumulated analyst labels (the feedback data is already captured; `used_for_training` tracks what's been consumed).
-- **Per-feature explanations** — surface which features drove each score in the Investigation view (the engine already returns explanations per detector).
-- **Auth & roles** — add authentication and basic role-based access for analysts vs. admins.
-- **CSV export** — export filtered alerts and feedback history from the dashboard.
-- **Alert notifications** — email/webhook on CRITICAL alerts.
-- **Live refresh** — push new alerts to the dashboard instead of polling.
-- **Deployment** — containerize and deploy (e.g. AWS ECS + RDS).
+- **Close the feedback loop** - retrain the model on accumulated analyst labels (the feedback data is already captured; `used_for_training` tracks what's been consumed).
+- **Per-feature explanations** - surface which features drove each score in the Investigation view (the engine already returns explanations per detector).
+- **Auth & roles** - add authentication and basic role-based access for analysts vs. admins.
+- **CSV export** - export filtered alerts and feedback history from the dashboard.
+- **Alert notifications** - email/webhook on CRITICAL alerts.
+- **Live refresh** - push new alerts to the dashboard instead of polling.
+- **Deployment** - containerize and deploy (e.g. AWS ECS + RDS).
 
 ---
 

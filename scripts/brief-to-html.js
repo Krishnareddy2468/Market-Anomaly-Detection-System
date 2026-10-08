@@ -98,7 +98,7 @@ const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Market Anomaly Detection — Project Brief for Jonathan Maharaj</title>
+<title>Market Anomaly Detection - Project Brief for Jonathan Maharaj</title>
 <style>
   @page { margin: 0.75in 0.9in; size: A4; }
   @media print {

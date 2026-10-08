@@ -6,7 +6,7 @@ Last updated: 2026-10-09
 
 - [x] Validate non-deployment changes end-to-end (typecheck + backend deterministic smoke test)
 - [x] Resolve lint command blocker in offline environment (mapped `lint` -> `typecheck`)
-- [x] Local UI/API verification — frontend `tsc` + `next build` (11 pages) pass; backend
+- [x] Local UI/API verification - frontend `tsc` + `next build` (11 pages) pass; backend
       routes verified live against a seeded PostgreSQL via `backend/scripts/smoke_test.py` (17/17)
 - [x] Commit staged changes with a focused message
 
@@ -19,11 +19,11 @@ Pre-deployment:
 - [x] Seed script exists (`python -m app.db.seed`)
 - [x] All environment variables documented and verified complete in `.env.example`
       (26/26 `Settings` fields present)
-- [x] Database migrations set up and tested with Alembic — initial migration
+- [x] Database migrations set up and tested with Alembic - initial migration
       (`alembic/versions/6f7832725e27_initial_schema.py`) verified upgrade → downgrade →
       re-upgrade (fully reversible, incl. explicit Postgres ENUM cleanup) against Postgres 16.
       `init_db()` now defers schema ownership to Alembic outside `development`.
-- [ ] Secrets rotated from development defaults — *deferred to deployment time* (rotate
+- [ ] Secrets rotated from development defaults - *deferred to deployment time* (rotate
       `SECRET_KEY` / DB credentials in the target environment; `.env.example` flags the defaults)
 
 Post-deployment verification:
@@ -62,10 +62,10 @@ Environment notes:
 
 ## 5. Recommended Next Actions
 
-- [x] Run `npm run lint` (typecheck) — passes
+- [x] Run `npm run lint` (typecheck) - passes
 - [x] Start backend-independent detection smoke tests (direct engine execution)
 - [x] Start full backend and run health + detection endpoint smoke tests against live DB
 - [x] Verify alerts/analytics/feedback/investigation pages/APIs against updated contracts
 - [x] Run Alembic migration verification against a live DB
 - [x] Commit staged changes after smoke checks pass
-- [ ] AWS deployment (RDS + ECS) and post-deploy verification — *out of scope for now*
+- [ ] AWS deployment (RDS + ECS) and post-deploy verification - *out of scope for now*

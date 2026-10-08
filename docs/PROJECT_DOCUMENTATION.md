@@ -14,13 +14,13 @@
 2. [The Solution](#2-the-solution)
 3. [System Architecture](#3-system-architecture)
 4. [Tech Stack](#4-tech-stack)
-5. [Detection Engine — The Brain](#5-detection-engine--the-brain)
+5. [Detection Engine - The Brain](#5-detection-engine--the-brain)
 6. [Database Design](#6-database-design)
 7. [API Reference](#7-api-reference)
 8. [Frontend Architecture](#8-frontend-architecture)
-9. [The Feedback Loop — Why It Gets Smarter](#9-the-feedback-loop--why-it-gets-smarter)
+9. [The Feedback Loop - Why It Gets Smarter](#9-the-feedback-loop--why-it-gets-smarter)
 10. [Problems We Faced & How We Solved Them](#10-problems-we-faced--how-we-solved-them)
-11. [Scalability — Taking This to Production](#11-scalability--taking-this-to-production)
+11. [Scalability - Taking This to Production](#11-scalability--taking-this-to-production)
 12. [Future Scope](#12-future-scope)
 13. [Performance Benchmarks](#13-performance-benchmarks)
 14. [Quick Start](#14-quick-start)
@@ -37,7 +37,7 @@ That's not a typo. The cost of *catching* fraud is 4x the fraud itself.
 
 ### Why Traditional Systems Fail
 
-Most banks and financial platforms still rely on **rule-based fraud detection** — hard-coded thresholds written by compliance teams:
+Most banks and financial platforms still rely on **rule-based fraud detection** - hard-coded thresholds written by compliance teams:
 
 ```
 IF amount > ₹5,00,000 → FLAG
@@ -50,12 +50,12 @@ These rules have three fatal flaws:
 | Problem | What Happens |
 |---|---|
 | **Static thresholds** | A ₹4,99,999 transaction slips through. Fraudsters learn the limits. |
-| **No personalization** | A CEO transferring ₹50L is normal. A student doing it isn't. Same rule catches both — or neither. |
+| **No personalization** | A CEO transferring ₹50L is normal. A student doing it isn't. Same rule catches both - or neither. |
 | **Alert fatigue** | 80-95% of alerts are **false positives**. Analysts process 200,000+ alerts/year, most of which are noise. |
 
 ### The Hidden Cost: Analyst Fatigue
 
-When 9 out of 10 alerts are false, your best investigators start rubber-stamping. They stop reading the details. And that's exactly when the real fraud — the ₹2 crore wire transfer at 3 AM to a brand-new account — gets marked "legitimate" because someone was drowning in garbage alerts.
+When 9 out of 10 alerts are false, your best investigators start rubber-stamping. They stop reading the details. And that's exactly when the real fraud - the ₹2 crore wire transfer at 3 AM to a brand-new account - gets marked "legitimate" because someone was drowning in garbage alerts.
 
 The industry calls this the **alert fatigue death spiral**:
 
@@ -81,8 +81,8 @@ That question changes everything. It means a ₹50L transfer is only suspicious 
 An **end-to-end ML-powered fraud detection platform** that:
 
 - Scores every transaction in **real-time (<25ms)** using three independent detection layers
-- Learns **behavioral baselines per entity** — what's "normal" is different for everyone
-- Provides a full **investigation workflow** with explainable AI — every score comes with reasons
+- Learns **behavioral baselines per entity** - what's "normal" is different for everyone
+- Provides a full **investigation workflow** with explainable AI - every score comes with reasons
 - Closes the loop with **analyst feedback** that makes the model smarter with every decision
 - Runs a modern **operations dashboard** for monitoring, triage, and analytics
 
@@ -141,7 +141,7 @@ Instead of one monolithic fraud model, we use a **three-layer ensemble**:
          └────────────────────────────────┘
 ```
 
-Each detector catches different fraud patterns. The statistical detector catches the obvious — large amounts, unusual hours. The behavioral detector catches the subtle — a change in spending pattern, a new destination. The ML model catches the invisible — multi-dimensional anomalies that no human rule would flag.
+Each detector catches different fraud patterns. The statistical detector catches the obvious - large amounts, unusual hours. The behavioral detector catches the subtle - a change in spending pattern, a new destination. The ML model catches the invisible - multi-dimensional anomalies that no human rule would flag.
 
 When all three agree something is wrong, you can be confident it's real.
 
@@ -221,19 +221,19 @@ When all three agree something is wrong, you can be confident it's real.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-### Request Flow — What Happens When a Transaction Arrives
+### Request Flow - What Happens When a Transaction Arrives
 
 ```
 1. Transaction JSON hits POST /api/detection/evaluate
                     │
 2. DetectionService receives the request
                     │
-3. Duplicate check — has this transaction_id been scored before?
+3. Duplicate check - has this transaction_id been scored before?
                     │
 4. Fetch 30-day historical transactions for this entity from DB
    (or use payload-provided history if entity is new)
                     │
-5. Feature Engineering — extract 50+ features:
+5. Feature Engineering - extract 50+ features:
    • amount_zscore, hourly_velocity, is_unusual_hour
    • is_new_destination, spending_deviation_pct
    • frequency_zscore, account_age_days
@@ -295,26 +295,26 @@ When all three agree something is wrong, you can be confident it's real.
 
 | Technology | Purpose |
 |---|---|
-| **PostgreSQL** | Primary datastore — transactions, alerts, feedback |
+| **PostgreSQL** | Primary datastore - transactions, alerts, feedback |
 | **joblib files** | Serialized ML model storage |
 | **CORS Middleware** | Cross-origin security |
 | **Connection Pooling** | 10 connections, 20 overflow, 300s recycle |
 
 ### Why These Choices?
 
-- **FastAPI over Flask/Django**: Async-native, automatic OpenAPI docs, Pydantic validation. Our `/evaluate` endpoint needs to be non-blocking — we can't afford to hold a thread per scoring request.
+- **FastAPI over Flask/Django**: Async-native, automatic OpenAPI docs, Pydantic validation. Our `/evaluate` endpoint needs to be non-blocking - we can't afford to hold a thread per scoring request.
 
 - **SQLAlchemy 2.0 async over raw SQL**: Type safety + connection pooling + query builder. The repository pattern cleanly separates DB access from business logic.
 
 - **Next.js 16 over plain React**: Server-side rendering for SEO (if we ever need a public landing page), API routes as fallback for mock data during development, Turbopack for instant HMR.
 
-- **TanStack Query over Redux**: We don't have *client* state that needs global management. All our state is *server* state — cached API responses that need smart invalidation. TanStack Query does this perfectly with stale-while-revalidate.
+- **TanStack Query over Redux**: We don't have *client* state that needs global management. All our state is *server* state - cached API responses that need smart invalidation. TanStack Query does this perfectly with stale-while-revalidate.
 
-- **Isolation Forest over supervised models**: We launched without labelled fraud data. Isolation Forest is unsupervised — it learns the shape of "normal" and flags whatever doesn't fit. No labels needed at day zero.
+- **Isolation Forest over supervised models**: We launched without labelled fraud data. Isolation Forest is unsupervised - it learns the shape of "normal" and flags whatever doesn't fit. No labels needed at day zero.
 
 ---
 
-## 5. Detection Engine — The Brain
+## 5. Detection Engine - The Brain
 
 ### 5.1 Feature Engineering (50+ Features)
 
@@ -412,13 +412,13 @@ Account Age:
 Confidence: 0.9 (has history) or 0.5 (new entity)
 ```
 
-### 5.4 ML Detector — Isolation Forest (40% Weight)
+### 5.4 ML Detector - Isolation Forest (40% Weight)
 
 This is the most powerful layer. **Isolation Forest** is an unsupervised anomaly detection algorithm that works on a beautiful principle:
 
 > *Anomalies are few and different. Therefore, they are easier to isolate.*
 
-The algorithm builds random binary trees. Normal data points require many splits to isolate. Anomalies — being few and far from the cluster — get isolated in very few splits. The shorter the path to isolation, the more anomalous the data point.
+The algorithm builds random binary trees. Normal data points require many splits to isolate. Anomalies - being few and far from the cluster - get isolated in very few splits. The shorter the path to isolation, the more anomalous the data point.
 
 **Why Isolation Forest?**
 
@@ -514,9 +514,9 @@ The confidence floor is critical. Without it, a new entity with no history would
 |---|---|---|
 | **transactions** | 2,306 | Immutable record of every financial transaction |
 | **alerts** | 668 | Generated when risk_score ≥ 50. Tracks lifecycle. |
-| **feature_snapshots** | ~30K | Every feature computed during scoring — full audit trail |
+| **feature_snapshots** | ~30K | Every feature computed during scoring - full audit trail |
 | **feedback** | 83 | Analyst decisions (FRAUD / FALSE_POSITIVE) |
-| **model_scores** | ~2K | Per-detector scores for every alert — reproducibility |
+| **model_scores** | ~2K | Per-detector scores for every alert - reproducibility |
 
 ### Key Indexes
 
@@ -553,7 +553,7 @@ CREATE INDEX ix_txn_amount_time ON transactions (timestamp, amount);
 
 ## 7. API Reference
 
-### 7.1 Detection — The Core
+### 7.1 Detection - The Core
 
 #### `POST /api/detection/evaluate`
 
@@ -615,7 +615,7 @@ Score a transaction in real-time. This is the endpoint that powers the entire pl
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/api/dashboard/metrics` | GET | KPI cards — total transactions, active alerts, high-risk count, FP rate |
+| `/api/dashboard/metrics` | GET | KPI cards - total transactions, active alerts, high-risk count, FP rate |
 | `/api/dashboard/alerts-trend?range=24h` | GET | Hourly/daily alert counts for trend chart |
 | `/api/dashboard/severity-distribution` | GET | CRITICAL/HIGH/MEDIUM/LOW counts for donut chart |
 
@@ -631,7 +631,7 @@ Score a transaction in real-time. This is the endpoint that powers the entire pl
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/api/investigations/{alert_id}` | GET | Investigation context — entity, risk, features, history |
+| `/api/investigations/{alert_id}` | GET | Investigation context - entity, risk, features, history |
 | `/api/investigations/{alert_id}/decision` | POST | Submit FRAUD / LEGITIMATE / REVIEW decision |
 | `/api/investigations/{alert_id}/notes` | POST | Add investigation notes |
 
@@ -650,7 +650,7 @@ Score a transaction in real-time. This is the endpoint that powers the entire pl
 | Endpoint | Method | Purpose |
 |---|---|---|
 | `/api/feedback?page=1&limit=20` | GET | Paginated feedback history with summary |
-| `/api/feedback/summary?range=7d` | GET | Resolution stats — total, frauds, FPs |
+| `/api/feedback/summary?range=7d` | GET | Resolution stats - total, frauds, FPs |
 | `/api/feedback/{feedback_id}` | GET | Single feedback detail |
 | `/api/feedback/by-analyst/{analyst_id}` | GET | Per-analyst decision history |
 
@@ -658,7 +658,7 @@ Score a transaction in real-time. This is the endpoint that powers the entire pl
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/health` | GET | Service health — `{"status":"healthy"}` |
+| `/health` | GET | Service health - `{"status":"healthy"}` |
 
 ---
 
@@ -672,14 +672,14 @@ app/layout.tsx
     └── QueryProvider (TanStack Query)
         └── app/page.tsx (Client-side router)
             ├── CurrencyProvider (INR/USD/EUR)
-            ├── Sidebar (Navigation — 6 pages)
+            ├── Sidebar (Navigation - 6 pages)
             ├── TopBar (Title, Theme toggle, Notifications, Currency)
             └── Dynamic Page Content
                 │
                 ├── Dashboard
                 │   ├── 4× MetricCard (KPIs with accent colors)
-                │   ├── AlertsTrendChart (Area chart — 24h trend)
-                │   ├── SeverityDonut (Pie chart — severity breakdown)
+                │   ├── AlertsTrendChart (Area chart - 24h trend)
+                │   ├── SeverityDonut (Pie chart - severity breakdown)
                 │   ├── AlertsDataTable (Recent 10 alerts, clickable)
                 │   └── LiveScannerCard (3 presets + custom mode)
                 │
@@ -731,7 +731,7 @@ API Client tries: http://localhost:8000/api/dashboard/metrics
                     → Returns mock data (development safety net)
 ```
 
-### Live Scanner — The Demo Centrepiece
+### Live Scanner - The Demo Centrepiece
 
 The `LiveScannerCard` component is the most important piece for the demo. It lets you score transactions in real-time against the live ML engine.
 
@@ -743,13 +743,13 @@ The `LiveScannerCard` component is the most important piece for the demo. It let
 | ✅ Normal | ₹2,850 | 10 AM | POS | **~18 LOW** |
 | ⚠️ Velocity | 6× ₹15L | Rapid | WIRE | **~55 MEDIUM** |
 
-**Custom Mode:** User can dial in any amount, channel, and hour — and watch the ML engine score it live.
+**Custom Mode:** User can dial in any amount, channel, and hour - and watch the ML engine score it live.
 
 ---
 
-## 9. The Feedback Loop — Why It Gets Smarter
+## 9. The Feedback Loop - Why It Gets Smarter
 
-This is the architectural differentiator. Most fraud systems are fire-and-forget — they score, they alert, end of story. This system closes the loop.
+This is the architectural differentiator. Most fraud systems are fire-and-forget - they score, they alert, end of story. This system closes the loop.
 
 ```
 ┌──────────────┐     ┌─────────────┐     ┌──────────────┐
@@ -795,11 +795,11 @@ This is the architectural differentiator. Most fraud systems are fire-and-forget
 
 ## 10. Problems We Faced & How We Solved Them
 
-This section documents the real engineering challenges we hit during development — not theoretical issues but actual bugs that broke the demo.
+This section documents the real engineering challenges we hit during development - not theoretical issues but actual bugs that broke the demo.
 
-### Problem 1: Timezone Bug — Scores Were Wrong for Hours
+### Problem 1: Timezone Bug - Scores Were Wrong for Hours
 
-**What happened:** The Live Scanner was sending `new Date().toISOString()` as the transaction timestamp. JavaScript's `toISOString()` converts to UTC. So a scan at 2:00 AM IST was being sent as 8:30 PM UTC (previous day). The statistical detector saw it as an evening transaction — not unusual at all — and gave it a low time-risk score.
+**What happened:** The Live Scanner was sending `new Date().toISOString()` as the transaction timestamp. JavaScript's `toISOString()` converts to UTC. So a scan at 2:00 AM IST was being sent as 8:30 PM UTC (previous day). The statistical detector saw it as an evening transaction - not unusual at all - and gave it a low time-risk score.
 
 **The impact:** A ₹76.7L transaction at 2 AM was scoring **41.8 LOW** instead of the expected **90+ CRITICAL**. The "unusual hour" signal was completely lost.
 
@@ -819,9 +819,9 @@ function localISOTimestamp() {
 
 **Lesson:** Always be explicit about timezone handling in fraud systems. The *local time* of the transaction is what matters for behavioral patterns, not UTC.
 
-### Problem 2: Silent Schema Drop — Pydantic Was Eating Our Data
+### Problem 2: Silent Schema Drop - Pydantic Was Eating Our Data
 
-**What happened:** We were sending `historical_transactions` in the request body to provide entity history for new entities. But the scores weren't reflecting the history — the behavioral detector was scoring as if the entity had no history at all.
+**What happened:** We were sending `historical_transactions` in the request body to provide entity history for new entities. But the scores weren't reflecting the history - the behavioral detector was scoring as if the entity had no history at all.
 
 **Root cause:** The `DetectionRequest` Pydantic v2 model didn't have a `historical_transactions` field. Pydantic v2's default behavior is to **silently ignore** extra fields. Our carefully crafted payload history was being dropped before it reached the detection engine.
 
@@ -842,9 +842,9 @@ class DetectionRequest(BaseModel):
 
 **Lesson:** Pydantic's strict validation is a double-edged sword. It protects you from bad data, but `model_config = ConfigDict(extra='ignore')` means typos in field names fail silently. Always validate that your payload reaches the function you expect.
 
-### Problem 3: Entity ID Collision — DB History Overriding Test Data
+### Problem 3: Entity ID Collision - DB History Overriding Test Data
 
-**What happened:** When demoing with the Live Scanner, we used entity IDs like `ENT-SCAN-001`. But the seeded database already had transactions under that entity. The detection service was finding 30 days of *database* history and ignoring the *payload* history we sent — because the code prioritized DB history.
+**What happened:** When demoing with the Live Scanner, we used entity IDs like `ENT-SCAN-001`. But the seeded database already had transactions under that entity. The detection service was finding 30 days of *database* history and ignoring the *payload* history we sent - because the code prioritized DB history.
 
 **The fix:** Generate unique entity IDs per scan:
 ```javascript
@@ -853,27 +853,27 @@ const entityId = `ENT-SCAN-${preset}-${Date.now()}`
 
 And modified the detection service to fall back to payload history only when DB history is empty.
 
-### Problem 4: Field Name Mismatch — geo_location vs geo_country
+### Problem 4: Field Name Mismatch - geo_location vs geo_country
 
-**What happened:** The frontend was sending `geo_location: "XX"` but the backend schema expected `geo_country: "XX"`. Pydantic silently ignored the wrong field name. The geographic risk detector was always getting `None` for country — scoring zero geographic risk.
+**What happened:** The frontend was sending `geo_location: "XX"` but the backend schema expected `geo_country: "XX"`. Pydantic silently ignored the wrong field name. The geographic risk detector was always getting `None` for country - scoring zero geographic risk.
 
 **The fix:** Changed frontend to use `geo_country` to match the schema.
 
 **Lesson:** When two systems talk to each other, field name mismatches are the most common integration bug. They're invisible in JavaScript (no type checking at runtime) and silent in Pydantic v2. TypeScript on the frontend catches some of these, but only if you use the types.
 
-### Problem 5: Conservative Scoring — The Model Was Too Polite
+### Problem 5: Conservative Scoring - The Model Was Too Polite
 
 **What happened:** After fixing all the data bugs, the scores were *better* but still too conservative. A ₹76.7L transaction at 2 AM was scoring 65 instead of 90+.
 
 **Root causes:**
 - Statistical detector's amount thresholds were too high (required ₹1Cr+ for max score)
 - Behavioral detector capped spending deviation at 25 points even for 500%+ deviations
-- The confidence multiplier was too aggressive — new entities with 0.5 confidence were dragging down composites
+- The confidence multiplier was too aggressive - new entities with 0.5 confidence were dragging down composites
 
 **The fix:**
 - Added tiered amount scoring: ₹1L → +20, ₹5L → +30, ₹10L → +35, ₹50L+ → +45
 - Added higher behavioral scoring tier: 500%+ deviation → up to 35 points
-- Changed the confidence floor from 0 to **0.7** — a low-confidence detector can reduce the score, but never by more than 30%
+- Changed the confidence floor from 0 to **0.7** - a low-confidence detector can reduce the score, but never by more than 30%
 
 **Before and after:**
 
@@ -884,7 +884,7 @@ And modified the detection service to fall back to payload history only when DB 
 | 6× ₹15L rapid wire transfers | 38.2 LOW | **55.52 MEDIUM** |
 | Custom escalation test | 42 → stuck | **42 → 71 → 81 → 86** |
 
-### Problem 6: Sidebar Visibility — CSS Variable Opacity Bug
+### Problem 6: Sidebar Visibility - CSS Variable Opacity Bug
 
 **What happened:** After redesigning the sidebar with Tailwind CSS variables (`text-sidebar-foreground/60`), the nav items became nearly invisible on the dark background. The Tailwind opacity modifier `/60` wasn't rendering correctly with HSL CSS variables.
 
@@ -901,7 +901,7 @@ className="text-white/80"
 
 ---
 
-## 11. Scalability — Taking This to Production
+## 11. Scalability - Taking This to Production
 
 ### Current State (Development)
 
@@ -982,7 +982,7 @@ Best for: Low-volume, synchronous scoring. The bank holds the transaction until 
 ```
 Transaction Event → Kafka Topic → Consumer (Detection Service) → Alert DB
 ```
-Best for: High-volume, async scoring. Transactions are not held — alerts are raised post-facto.
+Best for: High-volume, async scoring. Transactions are not held - alerts are raised post-facto.
 
 **Option 3: Webhook Notifications**
 ```
@@ -1047,8 +1047,8 @@ Best for: Integration with existing SIEM/SOC tools.
 
 | Feature | Description | Impact |
 |---|---|---|
-| **Graph Neural Network** | Model entity relationships — sender/receiver graphs. Detect mule account networks. | Catch organized fraud rings |
-| **Explainable AI (SHAP)** | SHAP values per feature per transaction — visual feature importance | Regulatory compliance (EU AI Act) |
+| **Graph Neural Network** | Model entity relationships - sender/receiver graphs. Detect mule account networks. | Catch organized fraud rings |
+| **Explainable AI (SHAP)** | SHAP values per feature per transaction - visual feature importance | Regulatory compliance (EU AI Act) |
 | **A/B Model Testing** | Canary deployment: 10% traffic to new model, compare performance | Safe model upgrades |
 | **Multi-Tenant Support** | Isolated detection engines per client/bank | SaaS deployment |
 | **Device Fingerprint Intelligence** | Browser/device fingerprinting with similarity matching | Account takeover detection |
@@ -1065,10 +1065,10 @@ Best for: Integration with existing SIEM/SOC tools.
 
 ### Research Directions
 
-- **Temporal Graph Networks** — Model how entity behavior evolves over time, not just snapshot analysis
-- **Adversarial Robustness** — Test and harden models against adversarial inputs designed to evade detection
-- **Transfer Learning** — Pre-train on public fraud datasets, fine-tune on institution-specific data
-- **Causal Inference** — Move from correlation (this looks anomalous) to causation (this is likely fraud because...)
+- **Temporal Graph Networks** - Model how entity behavior evolves over time, not just snapshot analysis
+- **Adversarial Robustness** - Test and harden models against adversarial inputs designed to evade detection
+- **Transfer Learning** - Pre-train on public fraud datasets, fine-tune on institution-specific data
+- **Causal Inference** - Move from correlation (this looks anomalous) to causation (this is likely fraud because...)
 
 ---
 
@@ -1092,7 +1092,7 @@ Best for: Integration with existing SIEM/SOC tools.
 | Metric | Value | Context |
 |---|---|---|
 | Precision | **67%** | 2 out of 3 alerts are real fraud (vs. 20-30% industry average for rule-based) |
-| Recall | **35%** | Room to improve — each feedback batch pushes this higher |
+| Recall | **35%** | Room to improve - each feedback batch pushes this higher |
 | F1 Score | **46%** | Balanced precision-recall metric |
 | False Positive Rate | **23.3%** ↓ | Trending down as feedback accumulates |
 | Alert-to-Fraud Ratio | **3:1** | Industry average is **8:1 to 20:1** |
@@ -1198,7 +1198,7 @@ LOW_RISK_THRESHOLD=20.0
 
 ---
 
-> *"The best fraud detection system isn't the one that catches the most fraud — it's the one that catches the right fraud while letting legitimate transactions flow. Every false positive is a customer you've just inconvenienced and an analyst minute you've just wasted."*
+> *"The best fraud detection system isn't the one that catches the most fraud - it's the one that catches the right fraud while letting legitimate transactions flow. Every false positive is a customer you've just inconvenienced and an analyst minute you've just wasted."*
 
 ---
 
