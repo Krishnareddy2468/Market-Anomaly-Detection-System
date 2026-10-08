@@ -88,14 +88,20 @@ export function InvestigationPage() {
   }))
 
   const riskPillClass = (risk: string) => {
-    if (risk === 'VERY_HIGH') return 'bg-red-100 text-red-700'
-    if (risk === 'HIGH') return 'bg-orange-100 text-orange-700'
-    if (risk === 'MEDIUM') return 'bg-yellow-100 text-yellow-700'
-    return 'bg-green-100 text-green-700'
+    if (risk === 'VERY_HIGH') return 'bg-red-500/15 text-red-500 border border-red-500/20'
+    if (risk === 'HIGH') return 'bg-orange-500/15 text-orange-500 border border-orange-500/20'
+    if (risk === 'MEDIUM') return 'bg-yellow-500/15 text-yellow-600 border border-yellow-500/20'
+    return 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/20'
   }
 
   return (
     <div className="p-6 space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Investigation</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Deep-dive into alert details and entity behavior</p>
+      </div>
+
       <Card className="bg-card border-border">
         <CardContent className="pt-6 flex flex-col md:flex-row gap-3">
           <Input
@@ -224,17 +230,18 @@ export function InvestigationPage() {
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={historicalData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 8% 88%)" />
-              <XAxis dataKey="date" stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
-              <YAxis stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
+              <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(0 0% 100%)',
-                  border: '1px solid hsl(200 8% 88%)',
-                  borderRadius: '6px',
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 }}
               />
-              <Line type="monotone" dataKey="score" stroke="hsl(0 84% 60%)" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

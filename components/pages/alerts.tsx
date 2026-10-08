@@ -35,15 +35,17 @@ export function AlertsPage() {
       <div className="space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Alerts</h1>
-          <p className="text-muted-foreground mt-1">Active fraud detection alerts and anomalies</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Alerts</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Active fraud detection alerts and anomalies</p>
         </div>
 
         {/* Filters */}
-        <Card className="p-6 bg-card border-border">
+        <Card className="p-5 bg-card border-border">
           <div className="flex items-center gap-2 mb-4">
-            <Filter className="h-5 w-5 text-muted-foreground" />
-            <h3 className="text-lg font-semibold text-foreground">Filters</h3>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
+              <Filter className="h-4 w-4 text-blue-500" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">Filters</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}

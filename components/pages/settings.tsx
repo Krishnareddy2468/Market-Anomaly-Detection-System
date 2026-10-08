@@ -9,10 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 export function SettingsPage() {
   return (
     <div className="p-6 space-y-6 ml-20 md:ml-64">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">System configuration and preferences</p>
+      </div>
+
       {/* User Settings */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-primary">Profile Settings</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">Profile Settings</CardTitle>
           <CardDescription>Manage your account information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -37,7 +43,7 @@ export function SettingsPage() {
       {/* Alert Thresholds */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-primary">Alert Configuration</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">Alert Configuration</CardTitle>
           <CardDescription>Configure alert thresholds and sensitivity</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -58,7 +64,7 @@ export function SettingsPage() {
       {/* Notification Preferences */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-primary">Notifications</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">Notifications</CardTitle>
           <CardDescription>Manage how you receive alerts and updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -96,7 +102,7 @@ export function SettingsPage() {
       {/* API Keys */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-primary">API Keys</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">API Keys</CardTitle>
           <CardDescription>Manage API access for integrations</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -118,7 +124,7 @@ export function SettingsPage() {
       {/* System Preferences */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-primary">System Preferences</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">System Preferences</CardTitle>
           <CardDescription>Configure system-wide settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

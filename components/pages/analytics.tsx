@@ -35,17 +35,23 @@ export function AnalyticsPage() {
   return (
     <PageContainer>
       <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Analytics</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Model performance metrics and detection trends</p>
+      </div>
+
       {/* Model Performance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {modelPerformanceMetrics.map((metric, idx) => (
-          <Card key={idx} className="bg-card border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-muted-foreground font-medium">{metric.label}</CardTitle>
+          <Card key={idx} className="bg-card border-border hover:border-primary/30 transition-colors">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{metric.label}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-end gap-2">
-                <span className="text-3xl font-bold text-primary">{typeof metric.value === 'number' ? metric.value.toFixed(1) : metric.value}</span>
-                <span className="text-sm text-muted-foreground">{metric.unit}</span>
+                <span className="text-3xl font-bold text-foreground">{typeof metric.value === 'number' ? metric.value.toFixed(1) : metric.value}</span>
+                <span className="text-sm text-muted-foreground mb-0.5">{metric.unit}</span>
               </div>
             </CardContent>
           </Card>
@@ -57,22 +63,23 @@ export function AnalyticsPage() {
         {/* Alert Volume Over Time */}
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-primary">Alert Volume & Fraud Detection</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Alert Volume & Fraud Detection</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={alertVolumeData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 8% 88%)" />
-                <XAxis dataKey="day" stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
-                <YAxis stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(0 0% 100%)',
-                    border: '1px solid hsl(200 8% 88%)',
-                    borderRadius: '6px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                 />
-                <Bar dataKey="alerts" fill="hsl(200 60% 50%)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="alerts" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="frauds" fill="hsl(0 84% 60%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -82,22 +89,23 @@ export function AnalyticsPage() {
         {/* Model Accuracy Progression */}
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-primary">Model Accuracy Over Versions</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Model Accuracy Over Versions</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={modelAccuracyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 8% 88%)" />
-                <XAxis dataKey="model" stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
-                <YAxis stroke="hsl(200 5% 45%)" style={{ fontSize: '12px' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="model" stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(0 0% 100%)',
-                    border: '1px solid hsl(200 8% 88%)',
-                    borderRadius: '6px',
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                 />
-                <Line type="monotone" dataKey="accuracy" stroke="hsl(184 100% 45%)" strokeWidth={3} dot={{ r: 5 }} />
+                <Line type="monotone" dataKey="accuracy" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
