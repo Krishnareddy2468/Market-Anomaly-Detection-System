@@ -194,6 +194,8 @@ class DetectionEngine:
         Aggregate detector scores using weighted average.
         
         Weights can be adjusted based on detector performance.
+        Uses minimum confidence floor to prevent low-confidence detectors
+        from disproportionately reducing the composite score.
         """
         total_weight = 0.0
         weighted_sum = 0.0
@@ -201,8 +203,9 @@ class DetectionEngine:
         for detector_name, result in detector_results.items():
             weight = self.detector_weights.get(detector_name, 0.0)
             
-            # Adjust weight by confidence
-            effective_weight = weight * result.confidence
+            # Use confidence floor of 0.7 — prevents near-zero confidence
+            # from wiping out a detector's contribution entirely
+            effective_weight = weight * max(0.7, result.confidence)
             
             weighted_sum += result.score * effective_weight
             total_weight += effective_weight

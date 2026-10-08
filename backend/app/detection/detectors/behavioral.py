@@ -36,34 +36,38 @@ class BehavioralDetector(BaseDetector):
         
         # 1. Spending Pattern Deviation
         amount_pct_deviation = features.get("amount_pct_from_avg", 0)
-        if amount_pct_deviation > 200:  # More than 200% above average
-            contribution = min(25, (amount_pct_deviation - 200) / 20)
+        if amount_pct_deviation > 500:  # 5x above average
+            contribution = min(35, 25 + (amount_pct_deviation - 500) / 100)
+            score += contribution
+            explanations.append(f"Spending {amount_pct_deviation:.0f}% above typical")
+        elif amount_pct_deviation > 200:  # More than 200% above average
+            contribution = min(25, (amount_pct_deviation - 200) / 15)
             score += contribution
             explanations.append(f"Spending {amount_pct_deviation:.0f}% above typical")
         
         # 2. New Destination Analysis
         is_new_destination = features.get("is_new_destination", False)
         if is_new_destination:
-            score += 15
+            score += 20
             explanations.append("First-time transaction destination")
         
         # 3. Channel Behavior
         is_new_channel = features.get("is_new_channel", False)
         if is_new_channel:
-            score += 10
+            score += 15
             explanations.append("New transaction channel used")
         
         # 4. Time Pattern Deviation
         time_pattern_score = features.get("time_pattern_deviation", 0)
-        if time_pattern_score > 50:
-            contribution = time_pattern_score * 0.2
+        if time_pattern_score > 30:
+            contribution = min(20, time_pattern_score * 0.3)
             score += contribution
             explanations.append("Unusual time pattern for this entity")
         
         # 5. Frequency Deviation
         frequency_zscore = features.get("frequency_zscore", 0)
-        if abs(frequency_zscore) > 2:
-            contribution = min(20, abs(frequency_zscore) * 5)
+        if abs(frequency_zscore) > 1.5:
+            contribution = min(25, abs(frequency_zscore) * 6)
             score += contribution
             if frequency_zscore > 0:
                 explanations.append(f"Transaction frequency {abs(frequency_zscore):.1f}x higher than usual")
@@ -84,7 +88,7 @@ class BehavioralDetector(BaseDetector):
         account_age_days = features.get("account_age_days", 365)
         if account_age_days < 30:
             # New accounts are higher risk
-            score += 10
+            score += 15
             explanations.append("New account (less than 30 days old)")
         
         # Normalize

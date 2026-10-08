@@ -26,8 +26,8 @@ class StatisticalDetector(BaseDetector):
     
     # Thresholds
     HIGH_AMOUNT_THRESHOLD = 100000  # INR
-    ZSCORE_THRESHOLD = 3.0
-    VELOCITY_THRESHOLD = 5  # transactions per hour
+    ZSCORE_THRESHOLD = 2.0
+    VELOCITY_THRESHOLD = 3  # transactions per hour
     
     @property
     def name(self) -> str:
@@ -43,25 +43,32 @@ class StatisticalDetector(BaseDetector):
         amount_zscore = features.get("amount_zscore", 0)
         
         if amount > self.HIGH_AMOUNT_THRESHOLD:
-            contribution = min(30, (amount / self.HIGH_AMOUNT_THRESHOLD) * 15)
+            # Scale contribution based on how far above threshold
+            multiple = amount / self.HIGH_AMOUNT_THRESHOLD
+            if multiple > 50:  # ₹50L+
+                contribution = 45
+            elif multiple > 10:  # ₹10L+
+                contribution = 35
+            else:
+                contribution = min(30, multiple * 10)
             score += contribution
-            explanations.append(f"High transaction amount: ${amount:,.2f}")
+            explanations.append(f"High transaction amount: ₹{amount:,.2f}")
         
         if abs(amount_zscore) > self.ZSCORE_THRESHOLD:
-            contribution = min(25, abs(amount_zscore) * 5)
+            contribution = min(30, abs(amount_zscore) * 3)
             score += contribution
             explanations.append(f"Amount deviation: {amount_zscore:.1f}σ from mean")
         
         # 2. Time Pattern Analysis
         is_unusual_hour = features.get("is_unusual_hour", False)
         if is_unusual_hour:
-            score += 15
-            explanations.append("Transaction at unusual hour")
+            score += 20
+            explanations.append("Transaction at unusual hour (midnight–5 AM)")
         
         # 3. Velocity Check
         hourly_count = features.get("hourly_transaction_count", 0)
         if hourly_count > self.VELOCITY_THRESHOLD:
-            contribution = min(20, (hourly_count - self.VELOCITY_THRESHOLD) * 5)
+            contribution = min(30, (hourly_count - self.VELOCITY_THRESHOLD) * 8)
             score += contribution
             explanations.append(f"High transaction velocity: {hourly_count}/hour")
         

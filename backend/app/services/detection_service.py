@@ -74,6 +74,21 @@ class DetectionService:
             for row in historical_rows
         ]
 
+        # Fall back to payload-supplied history when DB has none
+        if not historical_transactions and payload.historical_transactions:
+            historical_transactions = [
+                {
+                    "transaction_id": ht.transaction_id,
+                    "amount": float(ht.amount),
+                    "timestamp": ht.timestamp,
+                    "destination_account": ht.destination_account,
+                    "channel": ht.channel,
+                    "device_fingerprint": ht.device_fingerprint,
+                    "geo_country": ht.geo_country,
+                }
+                for ht in payload.historical_transactions
+            ]
+
         try:
             transaction = await self.transaction_repo.create(
                 transaction_id=payload.transaction_id,

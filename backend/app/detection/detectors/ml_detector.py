@@ -219,23 +219,23 @@ class MLDetector(BaseDetector):
         """
         explanations = []
         
-        if score < 40:
+        if score < 30:
             return explanations  # Low risk, no explanations needed
         
         # Feature importance (simulated)
-        if features["amount_normalized"] > 0.7:
+        if features["amount_normalized"] > 0.5:
             explanations.append("ML: Unusual transaction amount pattern")
         
-        if features["velocity"] > 0.6:
+        if features["velocity"] > 0.4:
             explanations.append("ML: Elevated transaction frequency detected")
         
-        if features["geo_risk"] > 0.6:
+        if features["geo_risk"] > 0.5:
             explanations.append("ML: Geographic pattern anomaly")
         
         if features["device_risk"] > 0.5:
             explanations.append("ML: Device fingerprint risk signal")
         
-        if features["frequency_deviation"] > 0.7:
+        if features["frequency_deviation"] > 0.5:
             explanations.append("ML: Behavioral frequency anomaly")
         
         if not explanations and score > 50:

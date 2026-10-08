@@ -285,6 +285,17 @@ class AlertVolumeResponse(BaseSchema):
 # Detection Schemas
 # =============================================================================
 
+class HistoricalTransactionInput(BaseSchema):
+    """Historical transaction provided inline with a detection request."""
+    transaction_id: str
+    amount: float
+    timestamp: datetime
+    destination_account: Optional[str] = None
+    channel: Optional[str] = None
+    device_fingerprint: Optional[str] = None
+    geo_country: Optional[str] = None
+
+
 class DetectionRequest(BaseSchema):
     """Input payload for real-time detection evaluation."""
     transaction_id: str
@@ -299,6 +310,7 @@ class DetectionRequest(BaseSchema):
     ip_address: Optional[str] = None
     device_fingerprint: Optional[str] = None
     geo_country: Optional[str] = None
+    historical_transactions: List[HistoricalTransactionInput] = []
 
 
 class DetectionResultData(BaseSchema):
