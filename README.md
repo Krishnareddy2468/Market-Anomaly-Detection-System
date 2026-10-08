@@ -6,6 +6,22 @@ A full-stack fraud detection platform: a **Python / FastAPI** detection engine (
 
 ---
 
+## Screenshots
+
+**Dashboard** - KPIs, 7-day alert trend, severity breakdown, and recent alerts.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+**Live Scanner** - score any transaction through the real detection engine and see the per-detector breakdown and signals.
+
+![Live Scanner](docs/screenshots/live-scanner.png)
+
+**About** - how the detection pipeline and the three-detector ensemble work.
+
+![About](docs/screenshots/about.png)
+
+---
+
 ## Why
 
 Rule-based fraud systems drown analysts in false positives (industry average **70–80%**). Fraudsters learn fixed thresholds in days, and legitimate customers get frozen. This system blends statistical rules, per-entity behavioral baselines, and an unsupervised ML model so that **when all three agree, you can trust the alert** - and every analyst decision feeds back into the model.
