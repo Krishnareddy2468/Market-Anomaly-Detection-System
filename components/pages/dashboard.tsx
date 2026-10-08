@@ -9,10 +9,9 @@ import { AlertsDataTable } from '@/components/tables/alerts-data-table'
 import { Card } from '@/components/ui/card'
 import { AlertCircle, TrendingUp, AlertTriangle, PieChart as PieChartIcon } from 'lucide-react'
 import { PageContainer } from '@/components/layout/page-container'
-import { LiveScannerCard } from '@/components/cards/live-scanner-card'
 
 export function Dashboard() {
-  const { metrics, trend, isLoading: dashboardLoading } = useDashboardData()
+  const { metrics, trend, isLoading: dashboardLoading } = useDashboardData('7d')
   const { data: alertsData, isLoading: alertsLoading } = useAlerts({ limit: 10, page: 1 })
 
   return (
@@ -40,7 +39,6 @@ export function Dashboard() {
             value={metrics?.total_transactions || 0}
             format="number"
             icon={<TrendingUp className="h-5 w-5" />}
-            trend={metrics?.trends.alerts_change_pct}
             accentColor="bg-blue-500/10 text-blue-500"
           />
           <MetricCard
@@ -48,7 +46,6 @@ export function Dashboard() {
             value={metrics?.active_alerts || 0}
             format="number"
             icon={<AlertCircle className="h-5 w-5" />}
-            trend={metrics?.trends.alerts_change_pct}
             accentColor="bg-amber-500/10 text-amber-500"
           />
           <MetricCard
@@ -64,7 +61,6 @@ export function Dashboard() {
             format="percent"
             unit="%"
             icon={<PieChartIcon className="h-5 w-5" />}
-            trend={metrics?.trends.false_positive_change_pct}
             accentColor="bg-emerald-500/10 text-emerald-500"
           />
         </div>
@@ -72,7 +68,7 @@ export function Dashboard() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <AlertsTrendChart data={trend} isLoading={dashboardLoading} />
+            <AlertsTrendChart data={trend} isLoading={dashboardLoading} range="7d" />
           </div>
           <SeverityDonut isLoading={dashboardLoading} />
         </div>
@@ -92,9 +88,6 @@ export function Dashboard() {
           </div>
           <AlertsDataTable data={alertsData?.data || []} isLoading={alertsLoading} />
         </Card>
-
-        {/* Live Detection Demo */}
-        <LiveScannerCard />
       </div>
     </PageContainer>
   )

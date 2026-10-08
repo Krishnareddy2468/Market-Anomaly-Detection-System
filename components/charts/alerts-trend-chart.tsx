@@ -8,9 +8,16 @@ import { Activity } from 'lucide-react'
 interface AlertsTrendChartProps {
   data?: AlertsTrend
   isLoading?: boolean
+  range?: '24h' | '7d' | '30d'
 }
 
-export function AlertsTrendChart({ data, isLoading }: AlertsTrendChartProps) {
+const RANGE_LABEL: Record<string, string> = {
+  '24h': 'Last 24 hours',
+  '7d': 'Last 7 days',
+  '30d': 'Last 30 days',
+}
+
+export function AlertsTrendChart({ data, isLoading, range = '24h' }: AlertsTrendChartProps) {
   if (isLoading) {
     return (
       <Card className="p-6 border-border">
@@ -48,7 +55,7 @@ export function AlertsTrendChart({ data, isLoading }: AlertsTrendChartProps) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">Alerts Trend</h3>
-            <p className="text-xs text-muted-foreground">Last 24 hours</p>
+            <p className="text-xs text-muted-foreground">{RANGE_LABEL[range] ?? 'Last 24 hours'}</p>
           </div>
         </div>
       </div>

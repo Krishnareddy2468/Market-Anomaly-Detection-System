@@ -41,7 +41,7 @@ export function MetricCard({ title, value, icon, trend, unit, format = 'number',
             <p className="text-2xl font-bold tracking-tight">{formattedValue}</p>
             {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
           </div>
-          {trend !== undefined && (
+          {trend !== undefined && trend !== 0 && (
             <div className="mt-2 flex items-center gap-1.5">
               {isPositive ? (
                 <div className="flex items-center gap-1 text-red-500">
