@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Market Anomaly & Fraud Detection System — Project Documentation</title>
+<style>
+  @page { 
+    margin: 0.8in 1in; 
+    size: A4;
+  }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h2 { page-break-before: auto; page-break-after: avoid; }
+    pre, table, blockquote { page-break-inside: avoid; }
+    .no-print { display: none; }
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+    line-height: 1.75;
+    color: #1e293b;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 50px;
+    background: #ffffff;
+  }
+  
+  /* Cover / Title */
+  h1:first-of-type {
+    font-size: 2.4em;
+    color: #0f172a;
+    border-bottom: 4px solid #3b82f6;
+    padding-bottom: 12px;
+    margin-bottom: 5px;
+  }
+  
+  h1 {
+    color: #0f172a;
+    font-size: 1.9em;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 10px;
+    margin-top: 45px;
+  }
+  
+  h2 {
+    color: #1e3a5f;
+    font-size: 1.5em;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 35px;
+  }
+  
+  h3 {
+    color: #334155;
+    font-size: 1.2em;
+    margin-top: 25px;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    margin: 8px 0;
+    color: #334155;
+  }
+  
+  strong {
+    color: #0f172a;
+  }
+  
+  code {
+    background: #f1f5f9;
+    color: #be185d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 18px 22px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.82em;
+    line-height: 1.55;
+    margin: 16px 0;
+    border: 1px solid #1e293b;
+  }
+  
+  pre code {
+    background: none;
+    color: #e2e8f0;
+    padding: 0;
+    font-size: 1em;
+  }
+  
+  blockquote {
+    border-left: 4px solid #3b82f6;
+    margin: 16px 0;
+    padding: 14px 22px;
+    background: #eff6ff;
+    color: #1e40af;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+  }
+  
+  blockquote strong {
+    color: #1e3a5f;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9em;
+  }
+  
+  thead th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 0.05em;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  
+  td {
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+  }
+  
+  tbody tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  
+  hr {
+    border: none;
+    border-top: 2px solid #e2e8f0;
+    margin: 35px 0;
+  }
+  
+  ul, ol {
+    padding-left: 24px;
+    margin: 10px 0;
+  }
+  
+  li {
+    margin: 5px 0;
+    color: #475569;
+  }
+  
+  li strong {
+    color: #1e293b;
+  }
+  
+  /* Print button */
+  .print-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    z-index: 100;
+    transition: all 0.2s;
+  }
+  .print-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Save as PDF</button>
+
+<h1>Market Anomaly &amp; Fraud Detection System</h1>
+
+<h3>A Real-Time ML-Powered Financial Transaction Monitoring Platform</h3>
+
+<blockquote><strong>Author:</strong> Krishna Reddy<br/><strong>Version:</strong> 1.0.0<br/><strong>Last Updated:</strong> April 15, 2026</blockquote>
+
+<hr/>
+
+<h2>Table of Contents</h2>
+
+<ul><li>[The Problem](#1-the-problem)</li>
+<li>[The Solution](#2-the-solution)</li>
+<li>[System Architecture](#3-system-architecture)</li>
+<li>[Tech Stack](#4-tech-stack)</li>
+<li>[Detection Engine — The Brain](#5-detection-engine--the-brain)</li>
+<li>[Database Design](#6-database-design)</li>
+<li>[API Reference](#7-api-reference)</li>
+<li>[Frontend Architecture](#8-frontend-architecture)</li>
+<li>[The Feedback Loop — Why It Gets Smarter](#9-the-feedback-loop--why-it-gets-smarter)</li>
+<li>[Problems We Faced &amp; How We Solved Them](#10-problems-we-faced--how-we-solved-them)</li>
+<li>[Scalability — Taking This to Production](#11-scalability--taking-this-to-production)</li>
+<li>[Future Scope](#12-future-scope)</li>
+<li>[Performance Benchmarks](#13-performance-benchmarks)</li>
+<li>[Quick Start](#14-quick-start)</li>
+
+</ul><hr/>
+
+<h2>1. The Problem</h2>
+
+<h3>The $48 Billion Blind Spot</h3>
+
+<p>In 2024, global fraud losses crossed <strong>$48 billion</strong>. But the number that should scare financial institutions more is this: for every <strong>$1 lost to actual fraud</strong>, they spend <strong>$4.41</strong> in investigation, compliance, and operational overhead trying to catch it.</p>
+
+<p>That's not a typo. The cost of <em>catching</em> fraud is 4x the fraud itself.</p>
+
+<h3>Why Traditional Systems Fail</h3>
+
+<p>Most banks and financial platforms still rely on <strong>rule-based fraud detection</strong> — hard-coded thresholds written by compliance teams:</p>
+
+<pre><code class="lang-">IF amount &gt; ₹5,00,000 → FLAG
+<p>IF country IN blacklist → FLAG</p>
+<p>IF time BETWEEN 12AM-5AM → FLAG</p>
+</code></pre>
+
+<p>These rules have three fatal flaws:</p>
+
+<table><thead><tr><th>Problem</th><th>What Happens</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>Static thresholds</strong></th><th>A ₹4,99,999 transaction slips through. Fraudsters learn the limits.</th></tr></thead><tbody>
+<tr><td><strong>No personalization</strong></td><td>A CEO transferring ₹50L is normal. A student doing it isn't. Same rule catches both — or neither.</td></tr>
+<tr><td><strong>Alert fatigue</strong></td><td>80-95% of alerts are <strong>false positives</strong>. Analysts process 200,000+ alerts/year, most of which are noise.</td></tr>
+
+</tbody></table><h3>The Hidden Cost: Analyst Fatigue</h3>
+
+<p>When 9 out of 10 alerts are false, your best investigators start rubber-stamping. They stop reading the details. And that's exactly when the real fraud — the ₹2 crore wire transfer at 3 AM to a brand-new account — gets marked "legitimate" because someone was drowning in garbage alerts.</p>
+
+<p>The industry calls this the <strong>alert fatigue death spiral</strong>:</p>
+
+<pre><code class="lang-">More rules → More alerts → More false positives → Analysts ignore alerts
+<p>→ Real fraud slips through → Add more rules → Repeat</p>
+</code></pre>
+
+<h3>What We Needed</h3>
+
+<p>A system that doesn't ask <em>"does this transaction break a threshold?"</em> but instead asks:</p>
+
+<blockquote>*<em>"Does this transaction look normal </em>for this specific entity<em>, at </em>this time<em>, through </em>this channel<em>, to </em>this destination<em>?"<strong></blockquote>
+
+<p>That question changes everything. It means a ₹50L transfer is only suspicious if the entity normally transacts ₹20K. It means a 3 AM transaction is only flagged if the entity normally operates 9-5. Personalized detection, not blanket rules.</p>
+
+<hr/>
+
+<h2>2. The Solution</h2>
+
+<h3>What We Built</h3>
+
+<p>An </strong>end-to-end ML-powered fraud detection platform<strong> that:</p>
+
+<ul><li>Scores every transaction in </strong>real-time (&lt;25ms)<strong> using three independent detection layers</li>
+<li>Learns </strong>behavioral baselines per entity<strong> — what's "normal" is different for everyone</li>
+<li>Provides a full </strong>investigation workflow<strong> with explainable AI — every score comes with reasons</li>
+<li>Closes the loop with </strong>analyst feedback<strong> that makes the model smarter with every decision</li>
+<li>Runs a modern </strong>operations dashboard<strong> for monitoring, triage, and analytics</li>
+
+</ul><h3>The Key Insight</h3>
+
+<p>Instead of one monolithic fraud model, we use a </strong>three-layer ensemble<strong>:</p>
+
+<pre><code class="lang-">┌─────────────────────────────────────────────────────────────┐
+<p>│                    TRANSACTION INPUT                        │</p>
+<p>│         (amount, time, channel, entity, history)            │</p>
+<p>└─────────────────────┬───────────────────────────────────────┘</p>
+                      │
+                      ▼
+<p>┌─────────────────────────────────────────────────────────────┐</p>
+<p>│              FEATURE ENGINEERING (50+ features)             │</p>
+<p>│  Statistical · Temporal · Behavioral · Device · Geographic  │</p>
+<p>└─────────┬───────────────┬───────────────┬───────────────────┘</p>
+          │               │               │
+          ▼               ▼               ▼
+   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+   │ STATISTICAL  │ │ BEHAVIORAL  │ │  ML MODEL   │
+   │  DETECTOR    │ │  DETECTOR   │ │ (Isolation  │
+   │              │ │             │ │   Forest)   │
+   │  Weight: 25% │ │ Weight: 35% │ │ Weight: 40% │
+   │              │ │             │ │             │
+   │ Z-scores     │ │ Spending    │ │ Unsupervised│
+   │ Velocity     │ │ patterns    │ │ Multi-dim   │
+   │ Thresholds   │ │ Destinations│ │ anomaly     │
+   │ Time rules   │ │ Channels    │ │ detection   │
+   └──────┬───────┘ └──────┬──────┘ └──────┬──────┘
+          │               │               │
+          └───────────────┼───────────────┘
+                          │
+                          ▼
+         ┌────────────────────────────────┐
+         │   WEIGHTED SCORE AGGREGATION   │
+         │                                │
+         │  Score = Σ(Si × Wi × Ci)       │
+         │         ─────────────────      │
+         │          Σ(Wi × Ci)            │
+         │                                │
+         │  Confidence floor: 0.7         │
+         └────────────┬───────────────────┘
+                      │
+                      ▼
+         ┌────────────────────────────────┐
+         │      SEVERITY CLASSIFICATION   │
+         │                                │
+         │  ≥ 90  →  🔴 CRITICAL          │
+         │  ≥ 70  →  🟠 HIGH              │
+         │  ≥ 50  →  🟡 MEDIUM            │
+         │  &lt; 50  →  🟢 LOW               │
+         │                                │
+         │  ≥ 50  →  ALERT GENERATED      │
+         └────────────────────────────────┘
+</code></pre>
+
+<p>Each detector catches different fraud patterns. The statistical detector catches the obvious — large amounts, unusual hours. The behavioral detector catches the subtle — a change in spending pattern, a new destination. The ML model catches the invisible — multi-dimensional anomalies that no human rule would flag.</p>
+
+<p>When all three agree something is wrong, you can be confident it's real.</p>
+
+<hr/>
+
+<h2>3. System Architecture</h2>
+
+<h3>High-Level Architecture</h3>
+
+<pre><code class="lang-">┌─────────────────────────────────────────────────────────────────────┐
+<p>│                         CLIENT LAYER                                │</p>
+<p>│                                                                     │</p>
+<p>│  ┌──────────────────────────────────────────────────────────────┐   │</p>
+<p>│  │                    Next.js 16 Frontend                       │   │</p>
+<p>│  │                                                              │   │</p>
+<p>│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │   │</p>
+<p>│  │  │Dashboard │ │ Alerts   │ │Analytics │ │Investigation │   │   │</p>
+<p>│  │  │  Page    │ │  Page    │ │  Page    │ │    Page      │   │   │</p>
+<p>│  │  └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │   │</p>
+<p>│  │                                                              │   │</p>
+<p>│  │  ┌─────────────────────────────────────────────────────┐    │   │</p>
+<p>│  │  │              Live Transaction Scanner                │    │   │</p>
+<p>│  │  │         (Real-time ML Scoring Demo)                  │    │   │</p>
+<p>│  │  └─────────────────────────────────────────────────────┘    │   │</p>
+<p>│  └──────────────────────────┬───────────────────────────────────┘   │</p>
+<p>│                             │ HTTP/REST                             │</p>
+<p>└─────────────────────────────┼───────────────────────────────────────┘</p>
+                              │
+<p>┌─────────────────────────────┼───────────────────────────────────────┐</p>
+<p>│                         API LAYER                                    │</p>
+<p>│                              │                                       │</p>
+<p>│  ┌───────────────────────────▼──────────────────────────────────┐   │</p>
+<p>│  │                    FastAPI Backend                            │   │</p>
+<p>│  │                                                              │   │</p>
+<p>│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │   │</p>
+<p>│  │  │Dashboard │ │ Alerts   │ │Analytics │ │  Detection   │   │   │</p>
+<p>│  │  │  Router  │ │ Router   │ │  Router  │ │   Router     │   │   │</p>
+<p>│  │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └──────┬───────┘   │   │</p>
+<p>│  │       │             │            │              │            │   │</p>
+<p>│  │  ┌────▼─────────────▼────────────▼──────────────▼───────┐   │   │</p>
+<p>│  │  │              SERVICE LAYER                            │   │   │</p>
+<p>│  │  │  DashboardService · AlertService · DetectionService   │   │   │</p>
+<p>│  │  │  AnalyticsService · FeedbackService                   │   │   │</p>
+<p>│  │  └──────────────────────┬────────────────────────────────┘   │   │</p>
+<p>│  │                         │                                    │   │</p>
+<p>│  │  ┌──────────────────────▼────────────────────────────────┐   │   │</p>
+<p>│  │  │              REPOSITORY LAYER (Data Access)           │   │   │</p>
+<p>│  │  │  AlertRepo · TransactionRepo · FeedbackRepo          │   │   │</p>
+<p>│  │  │  FeatureSnapshotRepo · ModelScoreRepo                 │   │   │</p>
+<p>│  │  └──────────────────────┬────────────────────────────────┘   │   │</p>
+<p>│  └──────────────────────────┤                                   │   │</p>
+<p>│                              │                                   │   │</p>
+<p>└──────────────────────────────┼───────────────────────────────────┘   │</p>
+                               │                                       │
+<p>┌──────────────────────────────┼───────────────────────────────────────┘</p>
+<p>│                         DATA LAYER                                    │</p>
+<p>│                              │                                       │</p>
+<p>│  ┌───────────────────────────▼──────────────────────────────────┐   │</p>
+<p>│  │                    PostgreSQL Database                        │   │</p>
+<p>│  │                                                              │   │</p>
+<p>│  │  ┌────────────┐ ┌────────┐ ┌──────────────┐ ┌──────────┐   │   │</p>
+<p>│  │  │Transactions│ │ Alerts │ │Feature Snaps │ │ Feedback │   │   │</p>
+<p>│  │  │  (2,306)   │ │ (668)  │ │  (Audit Log) │ │  (83)    │   │   │</p>
+<p>│  │  └────────────┘ └────────┘ └──────────────┘ └──────────┘   │   │</p>
+<p>│  └──────────────────────────────────────────────────────────────┘   │</p>
+<p>│                                                                      │</p>
+<p>│  ┌──────────────────────────────────────────────────────────────┐   │</p>
+<p>│  │              ML DETECTION ENGINE                              │   │</p>
+<p>│  │                                                              │   │</p>
+<p>│  │  ┌────────────────┐ ┌────────────────┐ ┌────────────────┐   │   │</p>
+<p>│  │  │  Statistical   │ │  Behavioral    │ │  ML Detector   │   │   │</p>
+<p>│  │  │  Detector      │ │  Detector      │ │ (Isolation     │   │   │</p>
+<p>│  │  │  (25% weight)  │ │  (35% weight)  │ │  Forest 40%)   │   │   │</p>
+<p>│  │  └────────────────┘ └────────────────┘ └────────────────┘   │   │</p>
+<p>│  └──────────────────────────────────────────────────────────────┘   │</p>
+<p>└──────────────────────────────────────────────────────────────────────┘</p>
+</code></pre>
+
+<h3>Request Flow — What Happens When a Transaction Arrives</h3>
+
+<pre><code class="lang-">1. Transaction JSON hits POST /api/detection/evaluate
+                    │
+<ul><li>DetectionService receives the request</li>
+                    </ul>│
+<ul><li>Duplicate check — has this transaction_id been scored before?</li>
+                    </ul>│
+<ul><li>Fetch 30-day historical transactions for this entity from DB</li>
+   </ul>(or use payload-provided history if entity is new)
+                    │
+<ul><li>Feature Engineering — extract 50+ features:</li>
+   </ul>• amount_zscore, hourly_velocity, is_unusual_hour
+   • is_new_destination, spending_deviation_pct
+   • frequency_zscore, account_age_days
+   • geo_risk_score, device_risk, ip_reputation
+                    │
+<ul><li>Three detectors score independently (can run in parallel):</li>
+   </ul>• Statistical:  Z-scores, thresholds, velocity    → Score + Confidence
+   • Behavioral:   Pattern deviation, new behaviors   → Score + Confidence
+   • ML (IForest): Multi-dimensional anomaly          → Score + Confidence
+                    │
+<ul><li>Weighted aggregation:</li>
+   </ul>composite = Σ(score × weight × confidence) / Σ(weight × confidence)
+                    │
+<ul><li>Classification: Score → Severity (CRITICAL/HIGH/MEDIUM/LOW)</li>
+                    </ul>│
+<ul><li>If score ≥ 50: Create Alert record in DB</li>
+                    </ul>│
+<ul><li>Persist: Transaction + Feature Snapshots + Model Scores</li>
+                    </ul>│
+<ul><li>Return: risk_score, severity, detector_scores, explanations</li>
+            </ul>Processing time: &lt;25ms
+</code></pre>
+
+<hr/>
+
+<h2>4. Tech Stack</h2>
+
+<h3>Backend</h3>
+
+<table><thead><tr><th>Technology</th><th>Version</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th></strong>Python<strong></th><th>3.9+</th><th>Core language</th></tr></thead><tbody>
+<tr><td></strong>FastAPI<strong></td><td>0.128</td><td>Async REST API framework</td></tr>
+<tr><td></strong>Uvicorn<strong></td><td>-</td><td>ASGI server with hot-reload</td></tr>
+<tr><td></strong>SQLAlchemy<strong></td><td>2.0+</td><td>Async ORM with connection pooling</td></tr>
+<tr><td></strong>asyncpg<strong></td><td>-</td><td>High-performance PostgreSQL driver</td></tr>
+<tr><td></strong>Pydantic<strong></td><td>v2</td><td>Request/response validation</td></tr>
+<tr><td></strong>scikit-learn<strong></td><td>-</td><td>Isolation Forest ML model</td></tr>
+<tr><td></strong>joblib<strong></td><td>-</td><td>Model serialization</td></tr>
+<tr><td></strong>NumPy<strong></td><td>-</td><td>Numerical computations</td></tr>
+<tr><td></strong>structlog<strong></td><td>-</td><td>Structured JSON logging</td></tr>
+
+</tbody></table><h3>Frontend</h3>
+
+<table><thead><tr><th>Technology</th><th>Version</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th></strong>Next.js<strong></th><th>16.1.6</th><th>React meta-framework (Turbopack)</th></tr></thead><tbody>
+<tr><td></strong>React<strong></td><td>18.3</td><td>UI library</td></tr>
+<tr><td></strong>TypeScript<strong></td><td>5.x</td><td>Type safety</td></tr>
+<tr><td></strong>TanStack Query<strong></td><td>5.x</td><td>Server state management (caching, refetch)</td></tr>
+<tr><td></strong>TanStack Table<strong></td><td>8.x</td><td>Headless data table with sorting, pagination</td></tr>
+<tr><td></strong>Recharts<strong></td><td>2.15</td><td>Charts (Area, Pie, Bar, Line)</td></tr>
+<tr><td></strong>Radix UI<strong></td><td>-</td><td>Accessible headless UI primitives</td></tr>
+<tr><td></strong>Tailwind CSS<strong></td><td>3.4</td><td>Utility-first styling</td></tr>
+<tr><td></strong>Lucide React<strong></td><td>-</td><td>Icon system</td></tr>
+<tr><td></strong>next-themes<strong></td><td>-</td><td>Dark/light mode</td></tr>
+
+</tbody></table><h3>Infrastructure</h3>
+
+<table><thead><tr><th>Technology</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th></strong>PostgreSQL<strong></th><th>Primary datastore — transactions, alerts, feedback</th></tr></thead><tbody>
+<tr><td></strong>joblib files<strong></td><td>Serialized ML model storage</td></tr>
+<tr><td></strong>CORS Middleware<strong></td><td>Cross-origin security</td></tr>
+<tr><td></strong>Connection Pooling<strong></td><td>10 connections, 20 overflow, 300s recycle</td></tr>
+
+</tbody></table><h3>Why These Choices?</h3>
+
+<ul><li></strong>FastAPI over Flask/Django<strong>: Async-native, automatic OpenAPI docs, Pydantic validation. Our <code>/evaluate</code> endpoint needs to be non-blocking — we can't afford to hold a thread per scoring request.</li>
+
+<li></strong>SQLAlchemy 2.0 async over raw SQL<strong>: Type safety + connection pooling + query builder. The repository pattern cleanly separates DB access from business logic.</li>
+
+<li></strong>Next.js 16 over plain React<strong>: Server-side rendering for SEO (if we ever need a public landing page), API routes as fallback for mock data during development, Turbopack for instant HMR.</li>
+
+<li></strong>TanStack Query over Redux</em><em>: We don't have </em>client<em> state that needs global management. All our state is </em>server<em> state — cached API responses that need smart invalidation. TanStack Query does this perfectly with stale-while-revalidate.</li>
+
+<li><strong>Isolation Forest over supervised models</strong>: We launched without labelled fraud data. Isolation Forest is unsupervised — it learns the shape of "normal" and flags whatever doesn't fit. No labels needed at day zero.</li>
+
+</ul><hr/>
+
+<h2>5. Detection Engine — The Brain</h2>
+
+<h3>5.1 Feature Engineering (50+ Features)</h3>
+
+<p>Before any detector runs, the system extracts a rich feature set from each transaction and its entity's history:</p>
+
+<strong>Statistical Features</strong>
+<table><thead><tr><th>Feature</th><th>How It's Computed</th><th>Why It Matters</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>amount_zscore</code></th><th><code>(amount - mean) / stddev</code> over 30-day history</th><th>Flags amounts that deviate from the entity's norm</th></tr></thead><tbody>
+<tr><td><code>hourly_velocity</code></td><td>Count of transactions in the same hour</td><td>Rapid-fire transfers are a strong fraud signal</td></tr>
+<tr><td><code>amount_pct_from_avg</code></td><td><code>(amount / average) × 100</code></td><td>Quick relative magnitude check</td></tr>
+
+</tbody></table><strong>Temporal Features</strong>
+<table><thead><tr><th>Feature</th><th>How It's Computed</th><th>Why It Matters</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>is_unusual_hour</code></th><th><code>True</code> if hour is 0-5 AM</th><th>Most legitimate transactions happen during business hours</th></tr></thead><tbody>
+<tr><td><code>day_of_week</code></td><td>Monday=0 to Sunday=6</td><td>Weekend patterns differ from weekday</td></tr>
+<tr><td><code>is_end_of_month</code></td><td><code>True</code> if day &gt; 25</td><td>Salary disbursements vs. suspicious activity</td></tr>
+
+</tbody></table><strong>Behavioral Features</strong>
+<table><thead><tr><th>Feature</th><th>How It's Computed</th><th>Why It Matters</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>is_new_destination</code></th><th>First-time recipient account</th><th>Account takeover typically sends to new accounts</th></tr></thead><tbody>
+<tr><td><code>is_new_channel</code></td><td>First time using WEB/API/POS/ATM</td><td>Channel switching is a fraud indicator</td></tr>
+<tr><td><code>spending_deviation_pct</code></td><td><code>current / average × 100</code></td><td>500%+ deviation is highly suspicious</td></tr>
+<tr><td><code>account_age_days</code></td><td>Days since first transaction</td><td>New accounts are higher risk</td></tr>
+<tr><td><code>frequency_zscore</code></td><td>Z-score of transaction frequency</td><td>Sudden burst of activity</td></tr>
+
+</tbody></table><strong>Device &amp; Geographic Features</strong>
+<table><thead><tr><th>Feature</th><th>How It's Computed</th><th>Why It Matters</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>geo_risk_score</code></th><th>Country-based risk rating</th><th>Transactions from high-risk jurisdictions</th></tr></thead><tbody>
+<tr><td><code>is_new_device</code></td><td>New device fingerprint</td><td>New device + high amount = classic fraud</td></tr>
+<tr><td><code>location_distance_km</code></td><td>Distance from typical location</td><td>Travel-time impossible scenarios</td></tr>
+
+</tbody></table><h3>5.2 Statistical Detector (25% Weight)</h3>
+
+<p>The statistical detector catches <strong>obvious outliers</strong> using mathematical tests:</p>
+
+<pre><code class="lang-">Score Contribution Breakdown:
+<p>─────────────────────────────────────────────</p>
+<p>Amount-Based Scoring:</p>
+  Amount &gt; ₹50,00,000  → +45 points
+  Amount &gt; ₹10,00,000  → +35 points
+  Amount &gt; ₹5,00,000   → +30 points
+  Amount &gt; ₹1,00,000   → +20 points
+
+<p>Z-Score Deviation:</p>
+  |z-score| &gt; 2.0       → +min(30, |z| × 3) points
+
+<p>Velocity (transactions/hour):</p>
+  Count &gt; 3/hour        → +min(30, (count-3) × 8) points
+
+<p>Time of Day:</p>
+  Hour 0-5 AM           → +20 points
+
+<p>Device:</p>
+  New device            → +10 points
+<p>─────────────────────────────────────────────</p>
+<p>Final Score: min(100, total)</p>
+<p>Confidence: 0.33 (no history) to 1.0 (full data)</p>
+</code></pre>
+
+<h3>5.3 Behavioral Detector (35% Weight)</h3>
+
+<p>The behavioral detector compares each transaction against the <strong>entity's personal baseline</strong>:</p>
+
+<pre><code class="lang-">Score Contribution Breakdown:
+<p>─────────────────────────────────────────────</p>
+<p>Spending Pattern:</p>
+  &gt; 500% of average     → +25-35 points (scales)
+  &gt; 200% of average     → +scaled up to 25 points
+  &gt; 150% of average     → +scaled up to 15 points
+
+<p>Destination Analysis:</p>
+  New recipient          → +20 points (account takeover signal)
+
+<p>Channel Analysis:</p>
+  New channel            → +15 points (WEB user suddenly on API)
+
+<p>Time Pattern:</p>
+  Deviation &gt; 30         → +min(20, deviation × 0.3)
+
+<p>Frequency:</p>
+  |z-score| &gt; 1.5        → +min(25, |z| × 6) points
+
+<p>Location:</p>
+  New location &gt; 500km   → +min(25, distance/100)
+
+<p>Account Age:</p>
+  &lt; 30 days              → +15 points (new account risk)
+<p>─────────────────────────────────────────────</p>
+<p>Confidence: 0.9 (has history) or 0.5 (new entity)</p>
+</code></pre>
+
+<h3>5.4 ML Detector — Isolation Forest (40% Weight)</h3>
+
+<p>This is the most powerful layer. <strong>Isolation Forest</strong> is an unsupervised anomaly detection algorithm that works on a beautiful principle:</p>
+
+<blockquote></em>Anomalies are few and different. Therefore, they are easier to isolate.<em></blockquote>
+
+<p>The algorithm builds random binary trees. Normal data points require many splits to isolate. Anomalies — being few and far from the cluster — get isolated in very few splits. The shorter the path to isolation, the more anomalous the data point.</p>
+
+<strong>Why Isolation Forest?</strong>
+
+<table><thead><tr><th>Consideration</th><th>Why It's Right Here</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>No labelled data needed</th><th>We launched without a labelled fraud dataset</th></tr></thead><tbody>
+<tr><td>Multi-dimensional</td><td>Catches patterns across 8 features simultaneously</td></tr>
+<tr><td>Fast inference</td><td>O(n log n) training, O(log n) scoring</td></tr>
+<tr><td>Robust to noise</td><td>Ensemble of 100 trees averages out noise</td></tr>
+<tr><td>Interpretable</td><td>Anomaly score directly maps to probability</td></tr>
+
+</tbody></table><strong>Feature Vector (8 dimensions)</strong>:
+<pre><code class="lang-python">{
+  "amount_normalized":    zscore / 3,           # Relative transaction size
+  "time_risk":            1.0 if 0-5AM else 0,  # Temporal risk
+  "velocity":             min(1.0, count / 10),  # Transaction speed
+  "geo_risk":             country_risk / 100,    # Geographic risk
+  "device_risk":          1.0 if new_device,     # Device novelty
+  "destination_risk":     1.0 if new_dest,       # Recipient novelty
+  "frequency_deviation":  abs(freq_z) / 3,       # Activity deviation
+  "account_age_risk":     1.0 if &lt; 30 days,      # Account maturity
+}
+</code></pre>
+
+<strong>Scoring Pipeline</strong>:
+<pre><code class="lang-">Raw IForest score (decision_function) → [-1, 1]
+          │
+<p>Sigmoid mapping: 1 / (1 + e^(6 × raw_score))</p>
+          │
+<p>Anomaly probability: [0.0 - 1.0]</p>
+          │
+<p>Risk score: probability × 100 → [0 - 100]</p>
+</code></pre>
+
+<h3>5.5 Score Aggregation</h3>
+
+<p>The three detector scores are combined using a <strong>confidence-weighted average</strong>:</p>
+
+<pre><code class="lang-">                    Σ (Score_i × Weight_i × Confidence_i)
+<p>Composite Score = ─────────────────────────────────────────</p>
+                      Σ (Weight_i × Confidence_i)
+
+<p>Where:</p>
+  Weight_statistical  = 0.25
+  Weight_behavioral   = 0.35
+  Weight_ml           = 0.40
+  Confidence_floor    = 0.7  (prevents low-confidence detectors
+                               from zeroing out the score)
+</code></pre>
+
+<p>The confidence floor is critical. Without it, a new entity with no history would get a behavioral confidence of 0.5, dragging the composite score down even when the statistical and ML detectors see a clear anomaly.</p>
+
+<hr/>
+
+<h2>6. Database Design</h2>
+
+<h3>Entity-Relationship Overview</h3>
+
+<pre><code class="lang-">┌──────────────┐       ┌────────────────┐       ┌──────────────────┐
+<p>│ Transactions │──1:N──│    Alerts       │──1:1──│    Feedback      │</p>
+<p>│              │       │                │       │                  │</p>
+<p>│ id (PK)      │       │ alert_id (PK)  │       │ feedback_id (PK) │</p>
+<p>│ transaction_id│      │ risk_score     │       │ decision         │</p>
+<p>│ amount       │       │ severity       │       │ confidence       │</p>
+<p>│ currency     │       │ status         │       │ notes            │</p>
+<p>│ timestamp    │       │ transaction_id │       │ analyst_id       │</p>
+<p>│ entity_id    │       │ detection_time │       │ resolved_at      │</p>
+<p>│ source_acct  │       └───────┬────────┘       └──────────────────┘</p>
+<p>│ dest_acct    │               │</p>
+<p>│ channel      │               │</p>
+<p>│ ip_address   │       ┌───────▼────────┐</p>
+<p>│ geo_country  │       │ Model Scores   │</p>
+<p>└──────┬───────┘       │                │</p>
+       │               │ detector_name  │
+       │               │ raw_score      │
+<p>┌──────▼───────┐       │ confidence     │</p>
+<p>│Feature Snaps │       │ model_version  │</p>
+<p>│              │       └────────────────┘</p>
+<p>│ feature_name │</p>
+<p>│ feature_value│</p>
+<p>│ category     │</p>
+<p>│ model_version│</p>
+<p>└──────────────┘</p>
+</code></pre>
+
+<h3>Tables Detail</h3>
+
+<table><thead><tr><th>Table</th><th>Records</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>transactions</strong></th><th>2,306</th><th>Immutable record of every financial transaction</th></tr></thead><tbody>
+<tr><td><strong>alerts</strong></td><td>668</td><td>Generated when risk_score ≥ 50. Tracks lifecycle.</td></tr>
+<tr><td><strong>feature_snapshots</strong></td><td>~30K</td><td>Every feature computed during scoring — full audit trail</td></tr>
+<tr><td><strong>feedback</strong></td><td>83</td><td>Analyst decisions (FRAUD / FALSE_POSITIVE)</td></tr>
+<tr><td><strong>model_scores</strong></td><td>~2K</td><td>Per-detector scores for every alert — reproducibility</td></tr>
+
+</tbody></table><h3>Key Indexes</h3>
+
+<pre><code class="lang-sql">-- Fast entity history lookups (30-day window for scoring)
+<p>CREATE INDEX ix_txn_entity_time ON transactions (entity_id, timestamp);</p>
+
+<p>-- Alert triage queries</p>
+<p>CREATE INDEX ix_txn_source_dest ON transactions (source_account, destination_account);</p>
+
+<p>-- Time-range analytics</p>
+<p>CREATE INDEX ix_txn_amount_time ON transactions (timestamp, amount);</p>
+</code></pre>
+
+<h3>Alert Status State Machine</h3>
+
+<pre><code class="lang-">                    ┌──────────────┐
+                    │    ACTIVE    │ ◄── Alert Created
+                    └──┬───────┬──┘
+                       │       │
+            ┌──────────▼─┐   ┌▼──────────────┐
+            │INVESTIGATING│   │   RESOLVED     │
+            └──┬──┬───┬──┘   └───────────────┘
+               │  │   │
+    ┌──────────▼  │   ▼───────────────┐
+    │  RESOLVED │  │  │FALSE_POSITIVE │
+    └───────────┘  │  └───────┬───────┘
+                   │          │
+                   └──►ACTIVE◄┘  (reopen)
+</code></pre>
+
+<hr/>
+
+<h2>7. API Reference</h2>
+
+<h3>7.1 Detection — The Core</h3>
+
+<p>#### <code>POST /api/detection/evaluate</code></p>
+
+<p>Score a transaction in real-time. This is the endpoint that powers the entire platform.</p>
+
+<strong>Request:</strong>
+<pre><code class="lang-json">{
+  "transaction_id": "TXN-20260415-001",
+  "amount": 7670000,
+  "timestamp": "2026-04-15T02:15:00",
+  "source_account": "ACC-8042",
+  "destination_account": "ACC-9999",
+  "entity_id": "USER-42521",
+  "entity_type": "USER",
+  "currency": "INR",
+  "channel": "API",
+  "ip_address": "185.220.101.45",
+  "geo_country": "XX",
+  "historical_transactions": [
+    {
+      "transaction_id": "H1",
+      "amount": 20350,
+      "timestamp": "2026-04-13T10:00:00",
+      "destination_account": "ACC-9100",
+      "channel": "WEB"
+    }
+  ]
+}
+</code></pre>
+
+<strong>Response:</strong>
+<pre><code class="lang-json">{
+  "data": {
+    "transaction_id": "TXN-20260415-001",
+    "risk_score": 90.13,
+    "severity": "CRITICAL",
+    "should_alert": true,
+    "alert_id": "ALT-07234",
+    "detector_scores": {
+      "statistical": 92.5,
+      "behavioral": 88.7,
+      "ml": 91.3
+    },
+    "explanations": [
+      "High transaction amount: ₹76,70,000",
+      "Amount deviation: 3.8σ from historical mean",
+      "Transaction at unusual hour (2 AM)",
+      "High-risk geographic location",
+      "New destination account"
+    ],
+    "processing_time_ms": 18.42
+  }
+}
+</code></pre>
+
+<h3>7.2 Dashboard</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/api/dashboard/metrics</code></th><th>GET</th><th>KPI cards — total transactions, active alerts, high-risk count, FP rate</th></tr></thead><tbody>
+<tr><td><code>/api/dashboard/alerts-trend?range=24h</code></td><td>GET</td><td>Hourly/daily alert counts for trend chart</td></tr>
+<tr><td><code>/api/dashboard/severity-distribution</code></td><td>GET</td><td>CRITICAL/HIGH/MEDIUM/LOW counts for donut chart</td></tr>
+
+</tbody></table><h3>7.3 Alerts</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/api/alerts?page=1&amp;limit=10&amp;severity=HIGH&amp;status=ACTIVE</code></th><th>GET</th><th>Paginated alert list with filters</th></tr></thead><tbody>
+<tr><td><code>/api/alerts/{alert_id}</code></td><td>GET</td><td>Full alert detail with transaction + features</td></tr>
+<tr><td><code>/api/alerts/{alert_id}/status?status=INVESTIGATING</code></td><td>PATCH</td><td>Update alert status (validates transitions)</td></tr>
+
+</tbody></table><h3>7.4 Investigation</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/api/investigations/{alert_id}</code></th><th>GET</th><th>Investigation context — entity, risk, features, history</th></tr></thead><tbody>
+<tr><td><code>/api/investigations/{alert_id}/decision</code></td><td>POST</td><td>Submit FRAUD / LEGITIMATE / REVIEW decision</td></tr>
+<tr><td><code>/api/investigations/{alert_id}/notes</code></td><td>POST</td><td>Add investigation notes</td></tr>
+
+</tbody></table><h3>7.5 Analytics</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/api/analytics/metrics</code></th><th>GET</th><th>Precision, Recall, F1, daily alert volume</th></tr></thead><tbody>
+<tr><td><code>/api/analytics/model-performance?range=7d</code></td><td>GET</td><td>Accuracy over model versions</td></tr>
+<tr><td><code>/api/analytics/alert-volume?range=7d</code></td><td>GET</td><td>Alert + fraud counts by day</td></tr>
+<tr><td><code>/api/analytics/confusion-matrix</code></td><td>GET</td><td>TP, FP, TN, FN counts</td></tr>
+<tr><td><code>/api/analytics/detection-rate?range=7d</code></td><td>GET</td><td>Detection rate trend</td></tr>
+
+</tbody></table><h3>7.6 Feedback</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/api/feedback?page=1&amp;limit=20</code></th><th>GET</th><th>Paginated feedback history with summary</th></tr></thead><tbody>
+<tr><td><code>/api/feedback/summary?range=7d</code></td><td>GET</td><td>Resolution stats — total, frauds, FPs</td></tr>
+<tr><td><code>/api/feedback/{feedback_id}</code></td><td>GET</td><td>Single feedback detail</td></tr>
+<tr><td><code>/api/feedback/by-analyst/{analyst_id}</code></td><td>GET</td><td>Per-analyst decision history</td></tr>
+
+</tbody></table><h3>7.7 Health</h3>
+
+<table><thead><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><code>/health</code></th><th>GET</th><th>Service health — <code>{"status":"healthy"}</code></th></tr></thead><tbody>
+
+</tbody></table><hr/>
+
+<h2>8. Frontend Architecture</h2>
+
+<h3>Component Tree</h3>
+
+<pre><code class="lang-">app/layout.tsx
+<p>└── ThemeProvider (dark/light mode)</p>
+    └── QueryProvider (TanStack Query)
+        └── app/page.tsx (Client-side router)
+            ├── CurrencyProvider (INR/USD/EUR)
+            ├── Sidebar (Navigation — 6 pages)
+            ├── TopBar (Title, Theme toggle, Notifications, Currency)
+            └── Dynamic Page Content
+                │
+                ├── Dashboard
+                │   ├── 4× MetricCard (KPIs with accent colors)
+                │   ├── AlertsTrendChart (Area chart — 24h trend)
+                │   ├── SeverityDonut (Pie chart — severity breakdown)
+                │   ├── AlertsDataTable (Recent 10 alerts, clickable)
+                │   └── LiveScannerCard (3 presets + custom mode)
+                │
+                ├── Alerts Page
+                │   ├── Filter Panel (severity, status, search)
+                │   └── AlertsDataTable (paginated, sortable)
+                │
+                ├── Investigation Page
+                │   ├── Alert Summary (score, entity, status)
+                │   ├── Transaction Details (9 fields)
+                │   ├── Feature Deviations (risk-colored pills)
+                │   ├── Historical Behavior Chart
+                │   ├── Decision Buttons (Fraud / Legitimate)
+                │   └── Notes Section
+                │
+                ├── Analytics Page
+                │   ├── 4× Performance Metrics (Precision, Recall, F1, Volume)
+                │   ├── Alert Volume Bar Chart
+                │   ├── Model Accuracy Line Chart
+                │   └── Confusion Matrix Stats
+                │
+                ├── Feedback Page
+                │   ├── 3× Summary Cards (Resolutions, Fraud, FPs)
+                │   └── Resolved Alerts Table
+                │
+                └── Settings Page
+                    ├── Profile Settings
+                    ├── Alert Thresholds Configuration
+                    ├── Notification Preferences
+                    ├── API Keys Management
+                    └── System Preferences
+</code></pre>
+
+<h3>Data Flow</h3>
+
+<pre><code class="lang-">Component mounts
+      │
+      ▼
+<p>TanStack Query hook fires (e.g., useDashboardMetrics())</p>
+      │
+      ▼
+<p>API Client tries: http://localhost:8000/api/dashboard/metrics</p>
+      │
+      ├── ✅ Success → Cache response (staleTime: 60s)
+      │                 → Render data
+      │
+      └── ❌ Fail → Fallback to Next.js API route: /api/dashboard/metrics
+                    → Returns mock data (development safety net)
+</code></pre>
+
+<h3>Live Scanner — The Demo Centrepiece</h3>
+
+<p>The <code>LiveScannerCard</code> component is the most important piece for the demo. It lets you score transactions in real-time against the live ML engine.</p>
+
+<strong>3 Pre-configured Scenarios:</strong>
+
+<table><thead><tr><th>Preset</th><th>Amount</th><th>Time</th><th>Channel</th><th>Expected Score</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>🚨 Suspicious</th><th>₹76.7L</th><th>2 AM</th><th>API</th><th><strong>~90 CRITICAL</strong></th></tr></thead><tbody>
+<tr><td>✅ Normal</td><td>₹2,850</td><td>10 AM</td><td>POS</td><td><strong>~18 LOW</strong></td></tr>
+<tr><td>⚠️ Velocity</td><td>6× ₹15L</td><td>Rapid</td><td>WIRE</td><td><strong>~55 MEDIUM</strong></td></tr>
+
+</tbody></table><strong>Custom Mode:</strong> User can dial in any amount, channel, and hour — and watch the ML engine score it live.
+
+<hr/>
+
+<h2>9. The Feedback Loop — Why It Gets Smarter</h2>
+
+<p>This is the architectural differentiator. Most fraud systems are fire-and-forget — they score, they alert, end of story. This system closes the loop.</p>
+
+<pre><code class="lang-">┌──────────────┐     ┌─────────────┐     ┌──────────────┐
+<p>│  Transaction │────▶│   Scoring   │────▶│    Alert     │</p>
+<p>│   Arrives    │     │   Engine    │     │  Generated   │</p>
+<p>└──────────────┘     └─────────────┘     └──────┬───────┘</p>
+                                                │
+                           ┌────────────────────▼───────┐
+                           │   Analyst Investigates     │
+                           │                            │
+                           │  • Reviews transaction     │
+                           │  • Checks feature devs     │
+                           │  • Reads explanations      │
+                           │  • Marks: FRAUD or FP      │
+                           └────────────┬───────────────┘
+                                        │
+                              ┌─────────▼─────────┐
+                              │  Feedback Stored   │
+                              │                    │
+                              │  decision, notes,  │
+                              │  analyst, timestamp │
+                              └─────────┬──────────┘
+                                        │
+                     ┌──────────────────▼──────────────────┐
+                     │      Model Retraining Pipeline      │
+                     │                                      │
+                     │  Labelled data → Supervised tuning   │
+                     │  FP rate tracked → Threshold adjust  │
+                     │  Precision/Recall → Model selection  │
+                     └──────────────────┬──────────────────┘
+                                        │
+                              ┌─────────▼─────────┐
+                              │  Better Detection  │
+                              │                    │
+                              │  ↓ False Positives │
+                              │  ↑ True Positives  │
+                              └────────────────────┘
+</code></pre>
+
+<strong>Current Feedback Pool:</strong> 83 analyst decisions → 55 confirmed frauds, 27 false positives. Each one makes the next detection more accurate.
+
+<hr/>
+
+<h2>10. Problems We Faced &amp; How We Solved Them</h2>
+
+<p>This section documents the real engineering challenges we hit during development — not theoretical issues but actual bugs that broke the demo.</p>
+
+<h3>Problem 1: Timezone Bug — Scores Were Wrong for Hours</h3>
+
+<strong>What happened:</strong> The Live Scanner was sending <code>new Date().toISOString()</code> as the transaction timestamp. JavaScript's <code>toISOString()</code> converts to UTC. So a scan at 2:00 AM IST was being sent as 8:30 PM UTC (previous day). The statistical detector saw it as an evening transaction — not unusual at all — and gave it a low time-risk score.
+
+<strong>The impact:</strong> A ₹76.7L transaction at 2 AM was scoring <strong>41.8 LOW</strong> instead of the expected <strong>90+ CRITICAL</strong>. The "unusual hour" signal was completely lost.
+
+<strong>The fix:</strong>
+<pre><code class="lang-javascript">// Before: UTC conversion loses IST timezone
+<p>const timestamp = new Date().toISOString()  // 2 AM IST → 8:30 PM UTC</p>
+
+<p>// After: Local ISO string preserves the actual wall-clock time</p>
+<p>function localISOTimestamp() {</p>
+  const now = new Date()
+  const offset = now.getTimezoneOffset()
+  const local = new Date(now.getTime() - offset </em> 60000)
+  return local.toISOString().slice(0, -1)  // 2 AM IST → 02:00:00
+}
+</code></pre>
+
+<strong>Lesson:</strong> Always be explicit about timezone handling in fraud systems. The <em>local time</em> of the transaction is what matters for behavioral patterns, not UTC.
+
+<h3>Problem 2: Silent Schema Drop — Pydantic Was Eating Our Data</h3>
+
+<strong>What happened:</strong> We were sending <code>historical_transactions</code> in the request body to provide entity history for new entities. But the scores weren't reflecting the history — the behavioral detector was scoring as if the entity had no history at all.
+
+<strong>Root cause:</strong> The <code>DetectionRequest</code> Pydantic v2 model didn't have a <code>historical_transactions</code> field. Pydantic v2's default behavior is to <strong>silently ignore</strong> extra fields. Our carefully crafted payload history was being dropped before it reached the detection engine.
+
+<strong>The fix:</strong>
+<pre><code class="lang-python"># Added to schemas.py
+<p>class HistoricalTransactionInput(BaseModel):</p>
+    transaction_id: str
+    amount: float
+    timestamp: str
+    destination_account: str
+    channel: str
+
+<p>class DetectionRequest(BaseModel):</p>
+    # ... existing fields ...
+    historical_transactions: Optional[List[HistoricalTransactionInput]] = None
+</code></pre>
+
+<strong>Lesson:</strong> Pydantic's strict validation is a double-edged sword. It protects you from bad data, but <code>model_config = ConfigDict(extra='ignore')</code> means typos in field names fail silently. Always validate that your payload reaches the function you expect.
+
+<h3>Problem 3: Entity ID Collision — DB History Overriding Test Data</h3>
+
+<strong>What happened:</strong> When demoing with the Live Scanner, we used entity IDs like <code>ENT-SCAN-001</code>. But the seeded database already had transactions under that entity. The detection service was finding 30 days of <em>database</em> history and ignoring the <em>payload</em> history we sent — because the code prioritized DB history.
+
+<strong>The fix:</strong> Generate unique entity IDs per scan:
+<pre><code class="lang-javascript">const entityId = <code>ENT-SCAN-${preset}-${Date.now()}</code>
+</code></pre>
+
+<p>And modified the detection service to fall back to payload history only when DB history is empty.</p>
+
+<h3>Problem 4: Field Name Mismatch — geo_location vs geo_country</h3>
+
+<strong>What happened:</strong> The frontend was sending <code>geo_location: "XX"</code> but the backend schema expected <code>geo_country: "XX"</code>. Pydantic silently ignored the wrong field name. The geographic risk detector was always getting <code>None</code> for country — scoring zero geographic risk.
+
+<strong>The fix:</strong> Changed frontend to use <code>geo_country</code> to match the schema.
+
+<strong>Lesson:</strong> When two systems talk to each other, field name mismatches are the most common integration bug. They're invisible in JavaScript (no type checking at runtime) and silent in Pydantic v2. TypeScript on the frontend catches some of these, but only if you use the types.
+
+<h3>Problem 5: Conservative Scoring — The Model Was Too Polite</h3>
+
+<strong>What happened:</strong> After fixing all the data bugs, the scores were <em>better</em> but still too conservative. A ₹76.7L transaction at 2 AM was scoring 65 instead of 90+.
+
+<strong>Root causes:</strong>
+<ul><li>Statistical detector's amount thresholds were too high (required ₹1Cr+ for max score)</li>
+<li>Behavioral detector capped spending deviation at 25 points even for 500%+ deviations</li>
+<li>The confidence multiplier was too aggressive — new entities with 0.5 confidence were dragging down composites</li>
+
+</ul><strong>The fix:</strong>
+<ul><li>Added tiered amount scoring: ₹1L → +20, ₹5L → +30, ₹10L → +35, ₹50L+ → +45</li>
+<li>Added higher behavioral scoring tier: 500%+ deviation → up to 35 points</li>
+<li>Changed the confidence floor from 0 to <strong>0.7</strong> — a low-confidence detector can reduce the score, but never by more than 30%</li>
+
+</ul><strong>Before and after:</strong>
+
+<table><thead><tr><th>Scenario</th><th>Before Fix</th><th>After Fix</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>₹76.7L at 2 AM, unknown IP</th><th>41.8 LOW</th><th><strong>90.13 CRITICAL</strong></th></tr></thead><tbody>
+<tr><td>₹2,850 grocery, 10 AM, known POS</td><td>32.1 LOW</td><td><strong>18.45 LOW</strong></td></tr>
+<tr><td>6× ₹15L rapid wire transfers</td><td>38.2 LOW</td><td><strong>55.52 MEDIUM</strong></td></tr>
+<tr><td>Custom escalation test</td><td>42 → stuck</td><td><strong>42 → 71 → 81 → 86</strong></td></tr>
+
+</tbody></table><h3>Problem 6: Sidebar Visibility — CSS Variable Opacity Bug</h3>
+
+<strong>What happened:</strong> After redesigning the sidebar with Tailwind CSS variables (<code>text-sidebar-foreground/60</code>), the nav items became nearly invisible on the dark background. The Tailwind opacity modifier <code>/60</code> wasn't rendering correctly with HSL CSS variables.
+
+<strong>The fix:</strong> Replaced all <code>text-sidebar-<em></code> CSS variable classes with direct Tailwind colors:
+<pre><code class="lang-jsx">// Before: invisible
+<p>className="text-sidebar-foreground/60"</p>
+
+<p>// After: clearly visible</p>
+<p>className="text-white/80"</p>
+</code></pre>
+
+<strong>Lesson:</strong> CSS-variable-based color systems in Tailwind work great for semantic theming, but opacity modifiers can break when the underlying HSL variable doesn't support the alpha channel format. When visibility is critical, use explicit colors.
+
+<hr/>
+
+<h2>11. Scalability — Taking This to Production</h2>
+
+<h3>Current State (Development)</h3>
+
+<pre><code class="lang-">Single Uvicorn worker → 1 process
+<p>PostgreSQL direct connection → 10 pool, 20 overflow</p>
+<p>In-process ML model → loaded in memory</p>
+<p>Frontend → Next.js dev server</p>
+</code></pre>
+
+<strong>Throughput:</strong> ~200 transactions/second (single worker with DB round-trips)
+
+<h3>Production Architecture</h3>
+
+<pre><code class="lang-">┌──────────────────────────────────────────────────────────────────┐
+<p>│                        LOAD BALANCER                             │</p>
+<p>│                   (AWS ALB / Nginx)                               │</p>
+<p>└────────────┬──────────────┬──────────────┬───────────────────────┘</p>
+             │              │              │
+    ┌────────▼────┐ ┌───────▼─────┐ ┌─────▼───────┐
+    │  FastAPI    │ │  FastAPI    │ │  FastAPI    │
+    │  Worker 1  │ │  Worker 2  │ │  Worker N  │
+    │  (Uvicorn) │ │  (Uvicorn) │ │  (Uvicorn) │
+    └────┬────┬──┘ └────┬───┬───┘ └────┬───┬───┘
+         │    │         │   │          │   │
+    ┌────▼────▼─────────▼───▼──────────▼───▼───┐
+    │              Redis Cluster                │
+    │     (Rate limiting, Caching, Queues)      │
+    └────────────────┬──────────────────────────┘
+                     │
+    ┌────────────────▼──────────────────────────┐
+    │         PostgreSQL (Multi-AZ)             │
+    │  Primary (writes) ←→ Read Replicas        │
+    │                                           │
+    │  pgBouncer connection pooling             │
+    └───────────────────────────────────────────┘
+
+    ┌───────────────────────────────────────────┐
+    │         Kafka / SQS                       │
+    │   (Transaction ingestion stream)          │
+    │                                           │
+    │   Bank Core → Kafka Topic → Detection API │
+    └───────────────────────────────────────────┘
+</code></pre>
+
+<h3>Scaling Strategies</h3>
+
+<table><thead><tr><th>Bottleneck</th><th>Solution</th><th>Impact</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>CPU (ML scoring)</strong></th><th>Add Uvicorn workers (<code>--workers 4</code>)</th><th>4× throughput per instance</th></tr></thead><tbody>
+<tr><td><strong>Database reads</strong></td><td>PostgreSQL read replicas</td><td>Separate scoring reads from dashboard queries</td></tr>
+<tr><td><strong>Connection overhead</strong></td><td>pgBouncer in front of Postgres</td><td>10,000+ concurrent connections</td></tr>
+<tr><td><strong>Traffic spikes</strong></td><td>Celery + Redis task queue</td><td>Buffer scoring requests, process async</td></tr>
+<tr><td><strong>Model loading</strong></td><td>Pre-load model per worker, shared memory</td><td>Zero-copy model access across workers</td></tr>
+<tr><td><strong>Global latency</strong></td><td>Multi-region deployment (AWS ECS)</td><td>&lt;50ms from any geography</td></tr>
+<tr><td><strong>Frontend</strong></td><td>Vercel / CloudFront CDN</td><td>Edge-cached static assets</td></tr>
+
+</tbody></table><h3>Throughput Projections</h3>
+
+<table><thead><tr><th>Configuration</th><th>Transactions/Second</th><th>Transactions/Day</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>1 worker, local DB</th><th>~200</th><th>~17M</th></tr></thead><tbody>
+<tr><td>4 workers, local DB</td><td>~700</td><td>~60M</td></tr>
+<tr><td>4 workers, pgBouncer, read replicas</td><td>~2,000</td><td>~170M</td></tr>
+<tr><td>8 workers, Kafka queue, Redis cache</td><td>~5,000+</td><td>~430M+</td></tr>
+<tr><td>Horizontal auto-scale (ECS)</td><td>~20,000+</td><td>~1.7B+</td></tr>
+
+</tbody></table><h3>Real-Time Integration Options</h3>
+
+<strong>Option 1: Direct API Integration</strong>
+<pre><code class="lang-">Core Banking System → POST /api/detection/evaluate → Response in &lt;25ms
+</code></pre>
+<p>Best for: Low-volume, synchronous scoring. The bank holds the transaction until scoring completes.</p>
+
+<strong>Option 2: Event Stream (Kafka)</strong>
+<pre><code class="lang-">Transaction Event → Kafka Topic → Consumer (Detection Service) → Alert DB
+</code></pre>
+<p>Best for: High-volume, async scoring. Transactions are not held — alerts are raised post-facto.</p>
+
+<strong>Option 3: Webhook Notifications</strong>
+<pre><code class="lang-">Detection Service scores → If alert → POST webhook to bank's alert system
+</code></pre>
+<p>Best for: Integration with existing SIEM/SOC tools.</p>
+
+<h3>Deployment Architecture (AWS)</h3>
+
+<pre><code class="lang-">┌─────────────────────────────────────────────────┐
+<p>│                    AWS Cloud                     │</p>
+<p>│                                                  │</p>
+<p>│  ┌──────────────┐  ┌───────────────────────┐    │</p>
+<p>│  │   CloudFront  │  │   Route 53 (DNS)      │    │</p>
+<p>│  │   (CDN)       │  └───────────────────────┘    │</p>
+<p>│  └──────┬────────┘                               │</p>
+<p>│         │                                        │</p>
+<p>│  ┌──────▼────────┐                               │</p>
+<p>│  │   Vercel /    │  ← Next.js Frontend           │</p>
+<p>│  │   S3 + CF     │                               │</p>
+<p>│  └──────┬────────┘                               │</p>
+<p>│         │                                        │</p>
+<p>│  ┌──────▼────────┐  ┌───────────────────────┐    │</p>
+<p>│  │   ALB         │  │   AWS WAF              │    │</p>
+<p>│  │   (HTTPS)     │──│   (Rate limiting,      │    │</p>
+<p>│  └──────┬────────┘  │    IP blocking)        │    │</p>
+<p>│         │           └───────────────────────┘    │</p>
+<p>│  ┌──────▼────────┐                               │</p>
+<p>│  │   ECS Fargate │  ← FastAPI Containers         │</p>
+<p>│  │   (Auto-scale)│     (2-10 tasks)              │</p>
+<p>│  └──────┬────────┘                               │</p>
+<p>│         │                                        │</p>
+<p>│  ┌──────▼────────┐  ┌───────────────────────┐    │</p>
+<p>│  │   RDS Postgres│  │   ElastiCache Redis   │    │</p>
+<p>│  │   (Multi-AZ)  │  │   (Rate limit +       │    │</p>
+<p>│  │   + Replicas  │  │    session cache)      │    │</p>
+<p>│  └───────────────┘  └───────────────────────┘    │</p>
+<p>│                                                  │</p>
+<p>│  ┌──────────────────────────────────────────┐    │</p>
+<p>│  │   CloudWatch (Monitoring + Alerting)      │    │</p>
+<p>│  │   X-Ray (Distributed Tracing)             │    │</p>
+<p>│  └──────────────────────────────────────────┘    │</p>
+<p>└──────────────────────────────────────────────────┘</p>
+</code></pre>
+
+<hr/>
+
+<h2>12. Future Scope</h2>
+
+<h3>Short-Term (Next 3 Months)</h3>
+
+<table><thead><tr><th>Feature</th><th>Description</th><th>Impact</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>Supervised Model Layer</strong></th><th>Train on 83+ labelled feedback decisions using XGBoost/LightGBM</th><th>15-20% improvement in precision</th></tr></thead><tbody>
+<tr><td><strong>API Key Authentication</strong></td><td>JWT + API key middleware on all endpoints</td><td>Production security</td></tr>
+<tr><td><strong>Real-Time WebSocket Dashboard</strong></td><td>Push new alerts to dashboard without polling</td><td>True real-time UX</td></tr>
+<tr><td><strong>Batch Scoring API</strong></td><td>Score 1000 transactions in a single call</td><td>Bulk processing for EOD reconciliation</td></tr>
+<tr><td><strong>Email/Slack Alerts</strong></td><td>Notify analysts on CRITICAL alerts via integrations</td><td>Faster response time</td></tr>
+
+</tbody></table><h3>Medium-Term (3-6 Months)</h3>
+
+<table><thead><tr><th>Feature</th><th>Description</th><th>Impact</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>Graph Neural Network</strong></th><th>Model entity relationships — sender/receiver graphs. Detect mule account networks.</th><th>Catch organized fraud rings</th></tr></thead><tbody>
+<tr><td><strong>Explainable AI (SHAP)</strong></td><td>SHAP values per feature per transaction — visual feature importance</td><td>Regulatory compliance (EU AI Act)</td></tr>
+<tr><td><strong>A/B Model Testing</strong></td><td>Canary deployment: 10% traffic to new model, compare performance</td><td>Safe model upgrades</td></tr>
+<tr><td><strong>Multi-Tenant Support</strong></td><td>Isolated detection engines per client/bank</td><td>SaaS deployment</td></tr>
+<tr><td><strong>Device Fingerprint Intelligence</strong></td><td>Browser/device fingerprinting with similarity matching</td><td>Account takeover detection</td></tr>
+
+</tbody></table><h3>Long-Term (6-12 Months)</h3>
+
+<table><thead><tr><th>Feature</th><th>Description</th><th>Impact</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th><strong>Federated Learning</strong></th><th>Train across multiple institutions without sharing raw data</th><th>Privacy-preserving cross-bank fraud detection</th></tr></thead><tbody>
+<tr><td><strong>NLP on Transaction Memos</strong></td><td>Parse transaction descriptions for anomaly signals</td><td>Catch social engineering patterns</td></tr>
+<tr><td><strong>Synthetic Data Generation</strong></td><td>GAN-based fraud scenario generation for model training</td><td>Unlimited training data</td></tr>
+<tr><td><strong>Regulatory Reporting Engine</strong></td><td>Auto-generate STR (Suspicious Transaction Reports) from alerts</td><td>Compliance automation</td></tr>
+<tr><td><strong>Mobile SDK</strong></td><td>Embedded fraud scoring in mobile banking apps</td><td>On-device pre-screening</td></tr>
+
+</tbody></table><h3>Research Directions</h3>
+
+<ul><li><strong>Temporal Graph Networks</strong> — Model how entity behavior evolves over time, not just snapshot analysis</li>
+<li><strong>Adversarial Robustness</strong> — Test and harden models against adversarial inputs designed to evade detection</li>
+<li><strong>Transfer Learning</strong> — Pre-train on public fraud datasets, fine-tune on institution-specific data</li>
+<li><strong>Causal Inference</strong> — Move from correlation (this looks anomalous) to causation (this is likely fraud because...)</li>
+
+</ul><hr/>
+
+<h2>13. Performance Benchmarks</h2>
+
+<h3>Scoring Latency</h3>
+
+<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>Average scoring time</th><th><strong>18-25ms</strong></th></tr></thead><tbody>
+<tr><td>P95 scoring time</td><td><strong>35ms</strong></td></tr>
+<tr><td>P99 scoring time</td><td><strong>48ms</strong></td></tr>
+<tr><td>Feature extraction</td><td>~5ms</td></tr>
+<tr><td>Statistical detector</td><td>~2ms</td></tr>
+<tr><td>Behavioral detector</td><td>~3ms</td></tr>
+<tr><td>ML detector (Isolation Forest)</td><td>~4ms</td></tr>
+<tr><td>DB persistence</td><td>~8ms</td></tr>
+
+</tbody></table><h3>Detection Quality</h3>
+
+<table><thead><tr><th>Metric</th><th>Value</th><th>Context</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>Precision</th><th><strong>67%</strong></th><th>2 out of 3 alerts are real fraud (vs. 20-30% industry average for rule-based)</th></tr></thead><tbody>
+<tr><td>Recall</td><td><strong>35%</strong></td><td>Room to improve — each feedback batch pushes this higher</td></tr>
+<tr><td>F1 Score</td><td><strong>46%</strong></td><td>Balanced precision-recall metric</td></tr>
+<tr><td>False Positive Rate</td><td><strong>23.3%</strong> ↓</td><td>Trending down as feedback accumulates</td></tr>
+<tr><td>Alert-to-Fraud Ratio</td><td><strong>3:1</strong></td><td>Industry average is <strong>8:1 to 20:1</strong></td></tr>
+
+</tbody></table><h3>Database Performance</h3>
+
+<table><thead><tr><th>Query</th><th>Avg Time</th></tr></thead><tbody>
+</tbody></table><tr class="sep"></tr>
+<table><thead><tr><th>Entity history lookup (30-day)</th><th>3ms</th></tr></thead><tbody>
+<tr><td>Alert list with filters (paginated)</td><td>8ms</td></tr>
+<tr><td>Dashboard metrics aggregation</td><td>12ms</td></tr>
+<tr><td>Feature snapshot batch insert</td><td>5ms</td></tr>
+
+</tbody></table><hr/>
+
+<h2>14. Quick Start</h2>
+
+<h3>Prerequisites</h3>
+
+<ul><li>Python 3.9+</li>
+<li>Node.js 18+</li>
+<li>PostgreSQL 14+</li>
+
+</ul><h3>Backend Setup</h3>
+
+<pre><code class="lang-bash"># Navigate to backend
+<p>cd backend</p>
+
+<h1>Create virtual environment</h1>
+<p>python3 -m venv venv</p>
+<p>source venv/bin/activate</p>
+
+<h1>Install dependencies</h1>
+<p>pip install -r requirements.txt</p>
+
+<h1>Start the server (with hot-reload)</h1>
+<p>uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload</p>
+</code></pre>
+
+<h3>Frontend Setup</h3>
+
+<pre><code class="lang-bash"># Install dependencies
+<p>npm install</p>
+
+<h1>Start development server</h1>
+<p>npm run dev</p>
+<h1>→ http://localhost:3000</h1>
+</code></pre>
+
+<h3>Verify</h3>
+
+<pre><code class="lang-bash"># Health check
+<p>curl http://localhost:8000/health</p>
+<h1>→ {"status":"healthy","app":"Market Anomaly Detection API","version":"1.0.0"}</h1>
+
+<h1>Score a test transaction</h1>
+<p>curl -X POST http://localhost:8000/api/detection/evaluate \</p>
+  -H 'Content-Type: application/json' \
+  -d '{
+    "transaction_id": "TEST-001",
+    "amount": 7670000,
+    "timestamp": "2026-04-15T02:00:00",
+    "source_account": "ACC-TEST",
+    "destination_account": "ACC-NEW",
+    "entity_id": "ENT-TEST-001",
+    "entity_type": "USER",
+    "currency": "INR",
+    "channel": "API",
+    "geo_country": "XX"
+  }'
+<h1>→ {"data": {"risk_score": 90.13, "severity": "CRITICAL", ...}}</h1>
+</code></pre>
+
+<h3>Environment Variables</h3>
+
+<pre><code class="lang-env"># Database
+<p>DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/fraud_detection</p>
+
+<h1>Server</h1>
+<p>HOST=0.0.0.0</p>
+<p>PORT=8000</p>
+<p>ENVIRONMENT=development</p>
+<p>DEBUG=false</p>
+<p>WORKERS=1</p>
+
+<h1>Security</h1>
+<p>SECRET_KEY=your-secret-key-change-in-production</p>
+<p>CORS_ORIGINS=["http://localhost:3000"]</p>
+
+<h1>Model</h1>
+<p>ML_MODEL_PATH=models/fraud_detector.joblib</p>
+<p>MODEL_VERSION=1.0.0</p>
+
+<h1>Detection Thresholds</h1>
+<p>HIGH_RISK_THRESHOLD=80.0</p>
+<p>MEDIUM_RISK_THRESHOLD=50.0</p>
+<p>LOW_RISK_THRESHOLD=20.0</p>
+</code></pre>
+
+<hr/>
+
+<blockquote></em>"The best fraud detection system isn't the one that catches the most fraud — it's the one that catches the right fraud while letting legitimate transactions flow. Every false positive is a customer you've just inconvenienced and an analyst minute you've just wasted."*</blockquote>
+
+<hr/>
+
+<strong>Built by Krishna Reddy</strong> | Full-Stack ML Platform | April 2026
+
+
+</body>
+</html>
