@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const mdPath = path.join(__dirname, '..', 'PROJECT_BRIEF.md');
-const outPath = path.join(__dirname, '..', 'PROJECT_BRIEF.html');
+const mdPath = path.join(__dirname, '..', 'docs', 'PROJECT_BRIEF.md');
+const outPath = path.join(__dirname, '..', 'docs', 'PROJECT_BRIEF.html');
 const md = fs.readFileSync(mdPath, 'utf8');
 
 // Convert markdown to HTML

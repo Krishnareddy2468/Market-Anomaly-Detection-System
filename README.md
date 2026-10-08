@@ -79,7 +79,11 @@ Transaction
 │   ├── alembic/            # database migrations
 │   ├── scripts/smoke_test.py   # end-to-end API verification
 │   └── models/             # trained ML artifact (fraud_detector.joblib)
-└── docs/                   # step-by-step build & deployment guides
+└── docs/                   # all documentation (see docs/README.md)
+    ├── reference/          # ARCHITECTURE.md, API_ENDPOINTS.md
+    ├── guides/             # operations, demo, step-by-step build guides
+    ├── PROJECT_BRIEF.md · PROJECT_DOCUMENTATION.md
+    └── PENDING_WORK.md
 ```
 
 ---

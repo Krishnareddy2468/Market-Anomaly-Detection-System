@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const mdPath = path.join(__dirname, '..', 'PROJECT_DOCUMENTATION.md');
-const outPath = path.join(__dirname, '..', 'PROJECT_DOCUMENTATION.html');
+const mdPath = path.join(__dirname, '..', 'docs', 'PROJECT_DOCUMENTATION.md');
+const outPath = path.join(__dirname, '..', 'docs', 'PROJECT_DOCUMENTATION.html');
 
 const md = fs.readFileSync(mdPath, 'utf8');
 

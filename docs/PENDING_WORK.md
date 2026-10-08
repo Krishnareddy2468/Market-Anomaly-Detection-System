@@ -10,7 +10,7 @@ Last updated: 2026-10-09
       routes verified live against a seeded PostgreSQL via `backend/scripts/smoke_test.py` (17/17)
 - [x] Commit staged changes with a focused message
 
-## 2. Deployment Checklist Status (docs/STEP7_DEPLOYMENT_PRODUCTION.md)
+## 2. Deployment Checklist Status (guides/STEP7_DEPLOYMENT_PRODUCTION.md)
 
 Pre-deployment:
 - [x] Health check endpoint exists (`GET /health`) and returns `status: healthy` in code
@@ -34,7 +34,7 @@ Post-deployment verification:
 - [ ] Structured logs confirmed in runtime sink (CloudWatch/stdout)
 - [ ] Error responses checked for stack-trace leakage
 
-## 3. Product Backlog (ARCHITECTURE.md Future Enhancements)
+## 3. Product Backlog (reference/ARCHITECTURE.md Future Enhancements)
 
 - [ ] Offline support with Service Workers
 - [ ] Real-time updates with WebSockets

@@ -12,7 +12,7 @@
 components/ui/**          linguist-vendored
 
 # HTML documentation generated from Markdown by scripts/md-to-html.js
-PROJECT_DOCUMENTATION.html linguist-generated
+docs/PROJECT_DOCUMENTATION.html linguist-generated
 
 # Documentation / build tooling, not part of the application
 scripts/*.js             linguist-vendored
